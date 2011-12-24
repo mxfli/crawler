@@ -29,28 +29,31 @@ var failedDumFile = __dirname + '/failed.json';
 var queueDumFile = __dirname + '/queue.json';
 var processDumFile = __dirname + '/process.json';
 
-if (path.existsSync(finishedDumFile)) {
-  finishedStack = JSON.parse(fs.readFileSync(finishedDumFile).toString());
-}
-if (path.existsSync(queueDumFile)) {
-  queue = JSON.parse(fs.readFileSync(queueDumFile).toString());
-}
-if (path.existsSync(failedDumFile)) {
-  failedStack = JSON.parse(fs.readFileSync(failedDumFile).toString());
-  for (var j in failedStack) {
-    failedStack[j].failedCount = 0;
-    queue.unshift(failedStack[j]);
+var loadQueue = function () {
+  if (path.existsSync(finishedDumFile)) {
+    finishedStack = JSON.parse(fs.readFileSync(finishedDumFile).toString());
   }
-  failedStack = {};
-}
-if (path.existsSync(processDumFile)) {
-  processingStack = JSON.parse(fs.readFileSync(processDumFile).toString());
-  for (var i in processingStack) {
-    queue.push(processingStack[i]);
+  if (path.existsSync(queueDumFile)) {
+    queue = JSON.parse(fs.readFileSync(queueDumFile).toString());
   }
-  processingStack = {};
-}
+  if (path.existsSync(failedDumFile)) {
+    failedStack = JSON.parse(fs.readFileSync(failedDumFile).toString());
+    for (var j in failedStack) {
+      failedStack[j].failedCount = 0;
+      queue.unshift(failedStack[j]);
+    }
+    failedStack = {};
+  }
+  if (path.existsSync(processDumFile)) {
+    processingStack = JSON.parse(fs.readFileSync(processDumFile).toString());
+    for (var i in processingStack) {
+      queue.push(processingStack[i]);
+    }
+    processingStack = {};
+  }
+};
 
+loadQueue();
 
 function dumpQueue() {
 
@@ -137,7 +140,7 @@ function crawl() {
       process.nextTick(crawl);
     }
   } else {
-    requestIconv({uri:uri, jar:requestOptions.jar}, iconvCallback);
+    requestIconv({uri:uri,headers:{"User-Agent":'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7'}, jar:requestOptions.jar}, iconvCallback);
     function iconvCallback(err, response, body) {
       if (err) {
         tailFunction(err);
