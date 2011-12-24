@@ -39,7 +39,7 @@ if (path.existsSync(failedDumFile)) {
   failedStack = JSON.parse(fs.readFileSync(failedDumFile).toString());
   for (var j in failedStack) {
     failedStack[j].failedCount = 0;
-    queue.push(failedStack[j]);
+    queue.unshift(failedStack[j]);
   }
   failedStack = {};
 }
@@ -79,6 +79,12 @@ function dumpQueue() {
     fs.writeFileSync(processDumFile, JSON.stringify(processingStack));
 
     console.log('Dump queue ok.');
+    var memUsage = process.memoryUsage().rss / (1024 * 1024);
+    console.log('Memory usage:', memUsage, 'Mb');
+    if (memUsage > 400) {
+      console.log("Over max memory usage, exit process.");
+      process.exit(1);
+    }
   }
 
   var retry = 0;
