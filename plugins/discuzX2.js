@@ -22,9 +22,9 @@ module.exports = function (window, $, callback) {
     }
   }
 
-//  parse('img', 'image', function (link) {
-//    crawler.push({uri:link.src, type:'img'});
-//  });
+  parse('img', 'image', function (link) {
+    crawler.push({uri:link.src, type:'img'});
+  });
 
 
   if (config.crawlOptions.recursive) {
