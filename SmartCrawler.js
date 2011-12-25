@@ -5,7 +5,7 @@
  * Description:
  *     Smart crawler of using rquest.pipe
  */
-var requestPipe = require('./request.pipe.js');
+var requestPipe = require('request');
 var requestIconv = require('./request-iconv.js');
 var fs = require('fs');
 var URL = require('url');
@@ -81,9 +81,10 @@ function dumpQueue() {
     //console.log('dum queueStack');
     fs.writeFileSync(processDumFile, JSON.stringify(processingStack));
 
+    queueInfo();
     console.log('Dump queue ok.');
     var memUsage = process.memoryUsage().rss / (1024 * 1024);
-    console.log('Memory usage:', memUsage, 'Mb');
+    console.log('Memory usage:', memUsage.toFixed(2), 'Mb');
     if (memUsage > 400) {
       console.log("Over max memory usage, exit process.");
       process.exit(1);
@@ -97,6 +98,37 @@ function dumpQueue() {
 dumpQueue();
 
 
+var getFilePath = function (uriObj) {
+  var baseName, uri = uriObj.uri;
+  if (/(css)|(js)/.test(uriObj.type)) {
+    baseName = URL.parse(uri).pathname;
+  } else {
+    baseName = URL.parse(uri).path;
+  }
+  if (/\/$/.test(baseName)) {
+    baseName = path.join(baseName, 'index.html');
+  }
+  return path.join(__dirname, config.crawlOptions['host'], baseName);
+};
+
+var preMkdir = function (_path, cb) {
+  //console.log('Checking path:', _path);
+  if (!path.existsSync(_path)) {
+    preMkdir(path.dirname(_path), function () {
+      fs.mkdirSync(_path);
+      cb && cb();
+    });
+  } else {
+    cb && cb();
+  }
+};
+
+function queueInfo() {
+  console.log('Queue:', queue.length,
+              '; processing:', Object.keys(processingStack).length,
+              '; Finished:', Object.keys(finishedStack).length,
+              '; Failed:', Object.keys(failedStack).length);
+}
 /**
  * Start the crawling the URIs in queue array.
  */
@@ -114,14 +146,17 @@ function crawl() {
 
   processingStack[uri] = uriObj;
 
-  console.log('Queue:', queue.length,
-              '; processing:', Object.keys(processingStack).length,
-              '; Finished:', Object.keys(finishedStack).length,
-              '; Failed:', Object.keys(failedStack).length);
+  queueInfo();
 
   //TODO(@Inaction) 不能直接使用pipe了。需要像connect一样有多个router顺序判断来执行。
   console.log("Crawl uri:", uri);
-  var filePath = path.join(__dirname, config.crawlOptions['host'], path.basename(URL.parse(uri).path));
+
+  var filePath = getFilePath(uriObj);
+
+  //console.log('File', filePath);
+
+
+  preMkdir(path.dirname(filePath));
 
   if (uriObj.type !== "link") {
     console.log('Pipe download:', uri);
@@ -140,7 +175,7 @@ function crawl() {
       process.nextTick(crawl);
     }
   } else {
-    requestIconv({uri:uri,headers:{"User-Agent":'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7'}, jar:requestOptions.jar}, iconvCallback);
+    requestIconv({uri:uri, headers:{"User-Agent":'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7'}, jar:requestOptions.jar}, iconvCallback);
     function iconvCallback(err, response, body) {
       if (err) {
         tailFunction(err);
@@ -148,7 +183,7 @@ function crawl() {
         //没有经过转码的由buffer进行保存，直接输出
         fs.writeFile(filePath, body, tailFunction);
       } else {
-        fs.writeFile(filePath, body, 'utf8', function (err) {
+        fs.writeFile(filePath, body.replace(/www\.nocancer\.com\.cn/g, 'nocancer.inaction.me'), 'utf8', function (err) {
           if (err) {
             tailFunction(err);
             return;
@@ -157,7 +192,14 @@ function crawl() {
             console.log("Build DOM :", uri);
 
             //Very ugly code to disable script
-            jsdom.env({html:body.replace("script>", "sscript>"), src:[jQuerySrc],
+            var html = body.replace(/<script|<\/script>/g, function (s) {
+              if (s === '<script') { return '<sscript';}
+              if (s == '<\/script>') { return '<\/sscript>';}
+              return "";
+            });
+
+            //TODO(mxfli) memory leak here?
+            jsdom.env({html:html, src:[jQuerySrc],
                         done:function (err, window) {
                           if (err) {
                             tailFunction(err);

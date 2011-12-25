@@ -26,14 +26,22 @@ module.exports = function (window, $, callback) {
     crawler.push({uri:link.src, type:'img'});
   });
 
+  parse('link[rel="stylesheet"]', 'css', function (link) {
+    crawler.push({uri:link.href, type:'css'});
+  });
+
+  parse('sscript[src^="static/"]', 'js', function (link) {
+    crawler.push({uri:$(link).attr('src'), type:'js'});
+  });
+
 
   if (config.crawlOptions.recursive) {
     //archive links
-//    parse('a[href^="archiver/"],a[href^="?tid-"]', 'Archive', function (a) {
-//      if (a.href.indexOf("nocancer.com.cn") > -1) {
-//        crawler.push({uri:a.href, type:'link'});
-//      }
-//    });
+    parse('a[href^="archiver/"],a[href^="?tid-"]', 'Archive', function (a) {
+      if (a.href.indexOf("nocancer.com.cn") > -1) {
+        crawler.push({uri:a.href, type:'link'});
+      }
+    });
 
     //forum links
     parse('a[href^="forum.php?gid="] ', 'forum', function (a) {
