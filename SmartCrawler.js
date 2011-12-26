@@ -58,7 +58,7 @@ loadQueue();
 function dumpQueue() {
 
   function dump() {
-    if (queue.length === Object.keys(processingStack).length === 0) {
+    if (queue.length === 0 && Object.keys(processingStack).length === 0) {
       if (retry > 2) {
         clearInterval(timer);
         console.log('queue is empty Exit dump Queue listener....');
@@ -187,7 +187,9 @@ function crawl() {
         //没有经过转码的由buffer进行保存，直接输出
         fs.writeFile(filePath, body, tailFunction);
       } else {
-        fs.writeFile(filePath, body.replace(/www\.nocancer\.com\.cn/g, 'nocancer.inaction.me'), 'utf8', function (err) {
+        fs.writeFile(filePath, body
+            .replace(/www\.nocancer\.com\.cn/g, 'nocancer.inaction.me')
+            .replace('3836526', '6089389'), 'utf8', function (err) {
           if (err) {
             tailFunction(err);
             return;
@@ -252,6 +254,17 @@ function isURL(uri) {
   return regxp.test(uri);
 }
 
+var isLastThread = function (link) {
+  var isLast = false;
+  isLast = /forum\.php$/.test(link);
+
+  if (/thread-.+?-.+?-.+?\.html/.test(link) && finishedStack[link]) {
+    var linkArray = link.split("-");
+    linkArray[2] = parseInt(linkArray[2]) + 1;
+    isLast = !!!finishedStack[linkArray.join("")];
+  }
+  return isLast;
+};
 
 var crawler = function crawler() {
   var that = {};
@@ -273,7 +286,7 @@ var crawler = function crawler() {
     }
     var isExcludedLink = /51\.la/.test(link);
     var isInQueue = queue.some(function (e) {return e.uri === link });
-    if (!(!isURL(link) || isInQueue || isExcludedLink || (link in failedStack && failedStack[link].failedCount > config.crawlOptions.maxRetryCount) || link in processingStack || link in finishedStack)) {
+    if ((requestOptions.update && uri.type === 'link' && isLastThread(link)) || !(!isURL(link) || isInQueue || isExcludedLink || (link in failedStack && failedStack[link].failedCount > config.crawlOptions.maxRetryCount) || link in processingStack || link in finishedStack)) {
       if (link !== 'http://www.nocancer.com.cn/') {
         queue.push(uri);
       }

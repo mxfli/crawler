@@ -9,13 +9,13 @@
 var config = {
   appName:'SmartCrawler',
   version:'0.0.3 alpha',
-  port:'111231', //the date of nocancer.com will be shutting down.
+  port:'1231', //the date of nocancer.com will be shutting down.
   databaseName:'nocancer',
   appDomain:'nocancer.inaction.me' //网站绑定的域名？也可以不用绑定，这个是灵活的，取决于在什么地址部署
 };
 
 config.crawlOptions = {
-  maxConnections:5,
+  maxConnections:7,
   maxRetryCount:3, //最大重试次数
   requestTimeout:30 * 1000,
   savePoint:50, //save data every 50 rui finished.
