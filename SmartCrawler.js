@@ -58,7 +58,7 @@ loadQueue();
 function dumpQueue() {
 
   function dump() {
-    if (queue.length === 0) {
+    if (queue.length === Object.keys(processingStack).length === 0) {
       if (retry > 2) {
         clearInterval(timer);
         console.log('queue is empty Exit dump Queue listener....');
@@ -67,6 +67,10 @@ function dumpQueue() {
         retry += 1;
         console.log('queue is empty retry:', retry);
       }
+    }
+
+    if (Object.keys(processingStack).length === 0 && queue.length > 0) {
+      process.nextTick(crawl);
     }
 
     console.log('Dumping queue...');
