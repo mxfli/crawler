@@ -1,6 +1,5 @@
 require('./config/config.js');
 
-var server = require('http');
 var connect = require('connect');
 var fs = require('fs');
 var path = require('path');
@@ -9,6 +8,9 @@ connect(
     connect.logger(':method :url - :res[content-type]', { buffer:5000 }),
     function (req, res, next) {
       console.log('req url:', req.url);
+      if (req.url === '/') {
+        req.url = '/forum.php';
+      }
       var filePath = __dirname + '/www.nocancer.com.cn/' + req.url;
       path.exists(filePath, function (exists) {
         if (exists) {
@@ -26,16 +28,13 @@ connect(
           }
           fs.createReadStream(filePath, {encoding:null, bufferSize:64 * 1024}).pipe(res);
         } else {
-          res.statusCode = 404;
-          res.end();
+          next();
         }
       });
     },
-    connect.static(__dirname + '/www.nocancer.com.cn', { maxAge:0 })
-    ,
     function (req, res) {
-      console.log("Error: call tail router.");
-      res.setHeader('Content-Type', 'text/html');
-      res.end('<img src="/tobi.jpeg" />')
+      console.error('url 404:', req.url);
+      res.statusCode = 404;
+      res.end();
     }
 ).listen(config.port);
