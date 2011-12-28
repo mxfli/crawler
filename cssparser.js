@@ -38,8 +38,8 @@ fs.readdir(cssDir, function (err, cssFiles) {
       var cssStr = cssBuffer.toString('ascii');
       console.log("CSS", cssFile, 'loaded.');
       var urls = parseCSSUri(cssStr);
-      console.log('CSS', cssFile, 'parse result:', urls.length);
-      urls.forEach(function (uri, index) {
+      console.log('CSS', cssFile, 'parse result:', urls ? urls.length : 0);
+      urls && urls.forEach(function (uri, index) {
         var imgPath = path.join(cssPath, uri.replace('url(', '').replace(')', ''));
         var imgUri = baseURI + imgPath;
         crawler.push({uri:imgUri, type:'img'});
