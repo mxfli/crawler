@@ -1,0 +1,53 @@
+#inaction.me vHost config
+upstream nocancer{
+  server 127.0.0.1:1231;
+}
+
+server{
+  listen 81;
+  server_name nocancer.inaction.me;
+  index forum.php index.html;
+  root  /home/nocancer/crawler/www.nocancer.com.cn;
+
+  #location / {
+  #       auth_basic            "Restricted";
+  #       auth_basic_user_file  conf/htpasswd;
+  #}
+  location ~ ^/archiver/.+ {
+    tcp_nodelay on;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://nocancer;
+    proxy_redirect off;
+    break;
+  }
+
+  location ~ .*\.(php|php5)?$
+  {
+    tcp_nodelay on;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-NginX-Proxy true;
+    proxy_pass http://nocancer;
+    proxy_redirect off;
+    #break;
+  }
+
+  location ~ .*\.(html|gif|png|jpg|css|ico|js|swf|txt|pdf|gz|bin|zip)$
+  {
+    root /home/nocancer/crawler/www.nocancer.com.cn;
+  }
+
+  location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|ico|txt)$
+  {
+    expires      30d;
+  }
+
+  location ~ .*\.(js|css)?$
+  {
+    expires      1d;
+  }
+}
