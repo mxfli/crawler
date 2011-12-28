@@ -35,6 +35,7 @@ connect(
     function (req, res) {
       console.error('url 404:', req.url);
       res.statusCode = 404;
-      res.end();
+      res.setHeader('Content-Type','text/html');
+      res.end('URI : "<i>'+req.url+'<\/i>" NOT crawled from www.nocancer.com.cn');
     }
 ).listen(config.port);
