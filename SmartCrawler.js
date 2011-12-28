@@ -11,10 +11,10 @@ var fs = require('fs');
 var URL = require('url');
 var util = require('util');
 var path = require('path');
-var jsdom = require('jsdom');
 
 //Load jQuery source code to string.
 var jQuerySrc = fs.readFileSync('./jquery/jquery-1.7.1.min.js').toString();
+var updated = 3;
 
 var requestOptions = config.requestOptions;
 
@@ -38,11 +38,11 @@ var loadQueue = function () {
   }
   if (path.existsSync(failedDumFile)) {
     failedStack = JSON.parse(fs.readFileSync(failedDumFile).toString());
-    for (var j in failedStack) {
-      failedStack[j].failedCount = 0;
-      queue.unshift(failedStack[j]);
-    }
-    failedStack = {};
+//    for (var j in failedStack) {
+//      failedStack[j].failedCount = 0;
+//      queue.unshift(failedStack[j]);
+//    }
+//    failedStack = {};
   }
   if (path.existsSync(processDumFile)) {
     processingStack = JSON.parse(fs.readFileSync(processDumFile).toString());
@@ -174,7 +174,7 @@ function crawl() {
       } else {
         console.log("Pipe save:", filePath);
         delete processingStack[uri];
-        finishedStack[uri] = true;
+        finishedStack[uri] = updated;
       }
       process.nextTick(crawl);
     }
@@ -189,7 +189,7 @@ function crawl() {
       } else {
         fs.writeFile(filePath, body
             .replace(/www\.nocancer\.com\.cn/g, 'nocancer.inaction.me')
-            .replace('3836526', '6089389'), 'utf8', function (err) {
+            .replace('3836526', '6089389').replace(/undefined$/, ''), 'utf8', function (err) {
           if (err) {
             tailFunction(err);
             return;
@@ -197,23 +197,19 @@ function crawl() {
           if (requestOptions.callback && /(html|xml)/.test(response.headers['content-type'])) {
             console.log("Build DOM :", uri);
 
-            //Very ugly code to disable script
-            var html = body.replace(/<script|<\/script>/g, function (s) {
-              if (s === '<script') { return '<sscript';}
-              if (s == '<\/script>') { return '<\/sscript>';}
-              return "";
-            });
+            //remove all scripts
+            body = body.replace(/<script.*?>.*?<\/script>/ig, '');
 
             //TODO(mxfli) memory leak here?
-            jsdom.env({html:html, src:[jQuerySrc],
-                        done:function (err, window) {
-                          if (err) {
-                            tailFunction(err);
-                            return;
-                          }
-                          console.log('Parse HTML :', uri);
-                          requestOptions.callback(window, window.$, tailFunction);
-                        }});
+            require('jsdom').env({html:body, src:[jQuerySrc],
+                                   done:function (err, window) {
+                                     if (err) {
+                                       tailFunction(err);
+                                       return;
+                                     }
+                                     console.log('Parse HTML :', uri);
+                                     requestOptions.callback(window, window.$, tailFunction);
+                                   }});
 
           }
         });
@@ -235,7 +231,7 @@ function crawl() {
           uriObj.failedCount = config.crawlOptions.maxRetryCount; //TODO(Inaction) use config.js value
           failedStack[uri] = uriObj;
         } else {
-          finishedStack[uri] = true;
+          finishedStack[uri] = updated;
         }
         delete processingStack[uri];
 
@@ -254,16 +250,8 @@ function isURL(uri) {
   return regxp.test(uri);
 }
 
-var isLastThread = function (link) {
-  var isLast = false;
-  isLast = /forum\.php$/.test(link);
-
-  if (/thread-.+?-.+?-.+?\.html/.test(link) && finishedStack[link]) {
-    var linkArray = link.split("-");
-    linkArray[2] = parseInt(linkArray[2]) + 1;
-    isLast = !!!finishedStack[linkArray.join("")];
-  }
-  return isLast;
+var isNeedUpdate = function (link) {
+  return (/(archiver\/\?.+?.html|thread-.+?-.+?-.+?\.html|forum.+?\.html|forum.php)$/.test(link) && finishedStack[link] !== updated);
 };
 
 var crawler = function crawler() {
@@ -286,7 +274,10 @@ var crawler = function crawler() {
     }
     var isExcludedLink = /51\.la/.test(link);
     var isInQueue = queue.some(function (e) {return e.uri === link });
-    if ((requestOptions.update && uri.type === 'link' && isLastThread(link)) || !(!isURL(link) || isInQueue || isExcludedLink || (link in failedStack && failedStack[link].failedCount > config.crawlOptions.maxRetryCount) || link in processingStack || link in finishedStack)) {
+    if ((requestOptions.update && uri.type === 'link' && isNeedUpdate(link)) ||
+        !(!isURL(link) || isInQueue || isExcludedLink ||
+            (link in failedStack && failedStack[link].failedCount > config.crawlOptions.maxRetryCount) ||
+            link in processingStack || link in finishedStack)) {
       if (link !== 'http://www.nocancer.com.cn/') {
         queue.push(uri);
       }
