@@ -9,20 +9,21 @@ var requestPipe = require('request');
 var requestIconv = require('./request-iconv.js');
 var fs = require('fs');
 var URL = require('url');
-var util = require('util');
 var path = require('path');
+var utilBox = require('./utilbox.js');
+var attchments = require('./attachment.js');
 
 //Load jQuery source code to string.
 var jQuerySrc = fs.readFileSync('./jquery/jquery-1.7.1.min.js').toString();
-var updated = 3;
+//var updated = 3;
 
 var requestOptions = config.requestOptions;
 
-//uri types: link, img, attachement
-var queue = [];             // {uri:'http://www.nocancer.com.cn', type:'link'}
-var processingStack = {};   // "_uri_example":'http://www.nocancer.com.cn/forum.php'};
-var failedStack = {};       // "_uri_example":{uri:'http://www.nocancer.com.cn/forum.php', failedCount:4}
-var finishedStack = {};     // "_uri_example":{uri:"http:www.nocancer.com.cn/lkjldjf.html", meta:{"content-type":"image"}}
+//uri types: link, img, attachment {uri:'',type:'',failedCount:0}
+var queue = [];
+var processingStack = {};
+var failedStack = {};
+var finishedStack = {};
 
 var finishedDumFile = __dirname + '/finished.json';
 var failedDumFile = __dirname + '/failed.json';
@@ -30,33 +31,26 @@ var queueDumFile = __dirname + '/queue.json';
 var processDumFile = __dirname + '/process.json';
 
 var loadQueue = function () {
-  if (path.existsSync(finishedDumFile)) {
-    finishedStack = JSON.parse(fs.readFileSync(finishedDumFile).toString());
-  }
-  if (path.existsSync(queueDumFile)) {
-    queue = JSON.parse(fs.readFileSync(queueDumFile).toString());
-  }
-  if (path.existsSync(failedDumFile)) {
-    failedStack = JSON.parse(fs.readFileSync(failedDumFile).toString());
-//    for (var j in failedStack) {
-//      failedStack[j].failedCount = 0;
-//      queue.unshift(failedStack[j]);
-//    }
-//    failedStack = {};
-  }
-  if (path.existsSync(processDumFile)) {
-    processingStack = JSON.parse(fs.readFileSync(processDumFile).toString());
-    for (var i in processingStack) {
-      queue.push(processingStack[i]);
+  var loadJson = function (fileName, defaultValue) {
+    if (path.existsSync(fileName)) {
+      return JSON.parse(fs.readFileSync(fileName).toString()) || defaultValue || {};
+    } else {
+      return defaultValue || {};
     }
-    processingStack = {};
-  }
+  };
+
+  finishedStack = loadJson.call(null, finishedDumFile, {});
+  queue = loadJson.call(null, queueDumFile, []);
+  failedStack = loadJson(failedDumFile, {});
+  var _processingStack = loadJson(processDumFile, {});
+  //将上次正在处理的uri加载到队列的开始。
+  Object.keys(_processingStack).forEach(function (uri) {queue.unshift(_processingStack[uri])});
 };
 
 loadQueue();
 
 function dumpQueue() {
-
+  //real dum function
   function dump() {
     if (queue.length === 0 && Object.keys(processingStack).length === 0) {
       if (retry > 2) {
@@ -85,11 +79,11 @@ function dumpQueue() {
     //console.log('dum queueStack');
     fs.writeFileSync(processDumFile, JSON.stringify(processingStack));
 
-    queueInfo();
     console.log('Dump queue ok.');
+    queueInfo();
     var memUsage = process.memoryUsage().rss / (1024 * 1024);
     console.log('Memory usage:', memUsage.toFixed(2), 'Mb');
-    if (memUsage > 400) {
+    if (memUsage > 390) {
       console.log("Over max memory usage, exit process.");
       process.exit(1);
     }
@@ -99,11 +93,13 @@ function dumpQueue() {
   var timer = setInterval(dump, 5 * 1000);
 }
 
-dumpQueue();
-
 
 var getFilePath = function (uriObj) {
   var baseName, uri = uriObj.uri;
+  if (uriObj.type === "attachment") {
+    return attchments.getAttFilePath(uri);
+  }
+
   if (/(css)|(js)/.test(uriObj.type)) {
     baseName = URL.parse(uri).pathname;
   } else {
@@ -113,18 +109,6 @@ var getFilePath = function (uriObj) {
     baseName = path.join(baseName, 'index.html');
   }
   return path.join(__dirname, config.crawlOptions['host'], baseName);
-};
-
-var preMkdir = function (_path, cb) {
-  //console.log('Checking path:', _path);
-  if (!path.existsSync(_path)) {
-    preMkdir(path.dirname(_path), function () {
-      fs.mkdirSync(_path);
-      cb && cb();
-    });
-  } else {
-    cb && cb();
-  }
 };
 
 function queueInfo() {
@@ -145,36 +129,36 @@ function crawl() {
 
   if (processingSize < config.crawlOptions.maxConnections) {process.nextTick(crawl);}
 
-  var uriObj = queue.pop();
+  var uriObj = queue.shift();
   var uri = uriObj['uri'];
 
   processingStack[uri] = uriObj;
 
-  queueInfo();
+  //queueInfo();
 
   //TODO(@Inaction) 不能直接使用pipe了。需要像connect一样有多个router顺序判断来执行。
-  console.log("Crawl uri:", uri);
+  console.log("Crawl   :", uri);
 
   var filePath = getFilePath(uriObj);
 
   //console.log('File', filePath);
 
 
-  preMkdir(path.dirname(filePath));
+  utilBox.preparePath(path.dirname(filePath));
 
   if (uriObj.type !== "link") {
-    console.log('Pipe download:', uri);
+    //console.log('Pipe download:', uri);
     requestPipe.get({uri:uri, jar:requestOptions.jar}, pipeCallback).pipe(fs.createWriteStream(filePath));
 
     function pipeCallback(err) {
+      console.log('Crawled', err ? 'ERROR :' : ':', uri);
+      delete processingStack[uri];
       if (err) {
-        console.log("piped download err:", uri);
         uriObj.failedCount = 5;
         failedStack[uri] = uriObj;
       } else {
-        console.log("Pipe save:", filePath);
-        delete processingStack[uri];
-        finishedStack[uri] = updated;
+        //console.log("Pipe save:", filePath);
+        (uriObj.type !== 'attachment') && (finishedStack[uri] = requestOptions['updateFlag']);
       }
       process.nextTick(crawl);
     }
@@ -195,7 +179,7 @@ function crawl() {
             return;
           }
           if (requestOptions.callback && /(html|xml)/.test(response.headers['content-type'])) {
-            console.log("Build DOM :", uri);
+            //console.log("Build DOM :", uri);
 
             //remove all scripts
             body = body.replace(/<script.*?>.*?<\/script>/ig, '');
@@ -207,7 +191,7 @@ function crawl() {
                                        tailFunction(err);
                                        return;
                                      }
-                                     console.log('Parse HTML :', uri);
+                                     //console.log('Parse HTML :', uri);
                                      requestOptions.callback(window, window.$, tailFunction);
                                    }});
 
@@ -216,8 +200,9 @@ function crawl() {
       }
       //错误的防盗错误队列进行处理
       function tailFunction(err) {
+        console.error('Crawled', err ? 'ERROR :' : ':', uri);
+        delete processingStack[uri];
         if (err) {
-          console.error('err:', err);
           if (failedStack[uri]) {
             uriObj.failedCount = uriObj.failedCount + 1;
             failedStack[uri] = uriObj;
@@ -225,15 +210,13 @@ function crawl() {
             uriObj.failedCount = 1;
             failedStack[uri] = uriObj;
           }
-          delete processingStack[uri];
-          uriObj.failedCount < config.crawlOptions.maxRetryCount && crawler.push(uriObj);
+          (uriObj.failedCount < config.crawlOptions.maxRetryCount) && crawler.push(uriObj);
         } else if (response.statusCode > 400) {
-          uriObj.failedCount = config.crawlOptions.maxRetryCount; //TODO(Inaction) use config.js value
+          uriObj.failedCount = config.crawlOptions.maxRetryCount;
           failedStack[uri] = uriObj;
         } else {
-          finishedStack[uri] = updated;
+          (uriObj.type !== 'attachment') && (finishedStack[uri] = requestOptions['updateFlag']);
         }
-        delete processingStack[uri];
 
         process.nextTick(crawl);
       }
@@ -246,12 +229,13 @@ function crawl() {
 
 function isURL(uri) {
   var regxp = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
-  if (!regxp.test(uri)) console.error('push link err:', uri);
+  //if (!regxp.test(uri)) console.error('push link err:', uri);
   return regxp.test(uri);
 }
 
 var isNeedUpdate = function (link) {
-  return (/(archiver\/\?.+?.html|thread-.+?-.+?-.+?\.html|forum.+?\.html|forum.php)$/.test(link) && finishedStack[link] !== updated);
+  return (/(archiver\/\?.+?.html|thread-.+?-.+?-.+?\.html|forum.+?\.html|forum.php)$/.test(link)
+      && finishedStack[link] !== requestOptions['updateFlag']);
 };
 
 var crawler = function crawler() {
@@ -264,24 +248,47 @@ var crawler = function crawler() {
     } else {
       //copy properties from url object.
       uri.uri = url.uri;
-      uri.type = url.type;
+      uri.type = url.type || 'link';
       uri.failedCount = url.failedCount ? url.failedCount : 0;
     }
+
 
     var link = uri.uri;
     if (uri.type !== 'link' && link.indexOf('http') < 0) {
       uri.uri = link = 'http://' + config.crawlOptions['host'] + '/' + link;
     }
-    var isExcludedLink = /51\.la/.test(link);
+
+    if (!isURL(link)) {return false;} //is not url exit
+
+    //51.la exit
+    var isExcludedLink = /(51\.la)|(bbs\.jhnews\.com\.cn)|(nocancer\.com\.cn:8080\/)/.test(link);
+    if (isExcludedLink) {return false;}
+
+    // in queue exit
     var isInQueue = queue.some(function (e) {return e.uri === link });
-    if ((requestOptions.update && uri.type === 'link' && isNeedUpdate(link)) ||
-        !(!isURL(link) || isInQueue || isExcludedLink ||
-            (link in failedStack && failedStack[link].failedCount > config.crawlOptions.maxRetryCount) ||
-            link in processingStack || link in finishedStack)) {
-      if (link !== 'http://www.nocancer.com.cn/') {
-        queue.push(uri);
-      }
+    if (isInQueue) {return false;}
+
+    // exit
+    var isMaxFiled = (link in failedStack) && failedStack[link].failedCount > config.crawlOptions.maxRetryCount;
+    if (isMaxFiled) {return false;}
+
+    if (link in processingStack) {return false;}
+
+    //attachment exists exit
+    if (uri.type === 'attachment' && attchments.exists(link)) {
+      //console.log('Skip attachment', link);
+      return false;
+    } else {
+      //console.log('attachment not exists,continue download.');
     }
+
+    if (uri.type === 'link') {
+      if (!isNeedUpdate(link)) {return false;}
+    } else if (uri.type !== 'attachment') {
+      if (link in finishedStack) {return false;}
+    }
+    queue.push(uri);
+    return true;
   };
 
 
@@ -311,8 +318,10 @@ var crawler = function crawler() {
       console.log('mkdir : ', config.crawlOptions['host']);
     }
 
-    that.push({uri:baseURI, type:'link', isBase:true});
+
+    that.push({uri:baseURI, type:'link', failedCount:0 });
     process.nextTick(crawl);
+    dumpQueue();
   };
 
 

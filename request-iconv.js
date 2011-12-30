@@ -6,7 +6,7 @@ var iconvLite = require('iconv-lite');
 
 //此方法虽然可用，但是并没有从根本上解决编码的问题，如果和从node的层面来解决呢？替换有关encoding的设置的方法还是重写？
 module.exports = function requestWithIconv(options, outerCB) {
-  console.log("call requests with iconv method.");
+//  console.log("call requests with iconv method.");
 
   var writableStreamBuffer = new streamBuffers.WritableStreamBuffer();
 

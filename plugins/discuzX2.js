@@ -68,15 +68,15 @@ module.exports = function (window, $, callback) {
 
   //pipe attachments and not need JB
   //TODO(mxfli) add attachemen file name
-  parse('a[href^="forum.php?mod=attachment"]', 'attachements', function (attachment) {
+  parse('a[href^="forum.php?mod=attachment"]', 'attachments', function (attachment) {
     var needJB = $('#' + (attachment.parentNode.id || attachment.id) + '_menu').text().indexOf('金币') > 0;
     if (!needJB) {
       //console.log('attachment:', attachment.href, $('#' + $(attachment).parent().id + '_menu').text());
-      crawler.push({uri:attachment.href, type:'attachement'});
+      crawler.push({uri:attachment.href, type:'attachment'});
     }
   });
 
-  console.log('resouces in page', linkStacks.join(';'));
+  console.log('found :', linkStacks.join(';'));
 
   callback && callback.call();
 };

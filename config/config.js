@@ -15,11 +15,12 @@ var config = {
 };
 
 config.crawlOptions = {
-  maxConnections:7,
+  maxConnections:5,
   maxRetryCount:3, //最大重试次数
   requestTimeout:30 * 1000,
   savePoint:50, //save data every 50 rui finished.
-  recursive:true
+  recursive:true,
+  updateFlag : true
 };
 
 //Default client http request options
@@ -37,5 +38,6 @@ config.requestOptions = {
 
 //add config to global
 global.config = config;
+console.log('App config options init.');
+//console.log('App config options:\n', config);
 
-console.log('App config options:\n', config);
