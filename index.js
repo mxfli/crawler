@@ -17,8 +17,10 @@ var crawler = require("./SmartCrawler.js");
 var discuzX2Plugin = require('./plugins/discuzX2.js');
 //finished 23132
 ctp.parse(__dirname + '/config/cookies.txt', function (cookies) {
-  crawler.init({jar:ctp, callback:discuzX2Plugin, update:true, updateFlag:3});
-//  crawler.crawl('http://www.nocancer.com.cn/thread-9786-1-1.html');
-//  crawler.crawl('http://www.nocancer.com.cn/thread-9493-1-1.html');
+  crawler.init({jar:ctp, callback:discuzX2Plugin, update:true, updateFlag:1231});
   crawler.crawl('http://www.nocancer.com.cn/forum.php');
+  crawler.push('http://www.nocancer.com.cn/portal.php');
+  crawler.push('http://www.nocancer.com.cn/thread-2070-1-1.html');
+  //crawler.crawl('http://www.nocancer.com.cn/thread-9837-1-1.html');
+//  crawler.crawl('http://www.nocancer.com.cn/thread-9493-1-1.html');
 });

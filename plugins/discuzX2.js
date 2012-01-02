@@ -6,7 +6,7 @@ var jsdom = require('jsdom');
  * 注：下面的代码要符合JS DOM编程规范,$是jQuery的符号，可以用jQuery
  * 堆栈的原则是后进先出，可以用来调整下载的顺序；
  */
-module.exports = function (window, $, callback) {
+module.exports = function (window, $, callback, flag) {
   //console.log("Processing resources in page ", $("title").text().replace('- Powered by Discuz!', ''));
   var linkStacks = [];
 
@@ -22,6 +22,21 @@ module.exports = function (window, $, callback) {
     }
   }
 
+//pipe images
+  parse('img[file^="forum.php?mod=attachment"]', "images", function (img) {
+    crawler.push({uri:"http://www.nocancer.com.cn/" + img.getAttribute('file'), type:'attachment'});
+    crawler.push({uri:"http://www.nocancer.com.cn/" + img.getAttribute('zoomfile'), type:'attachment'});
+  });
+
+  //pipe attachments and not need JB
+  parse('a[href^="forum.php?mod=attachment"]', 'attachments', function (attachment) {
+    var needJB = $('#' + (attachment.parentNode.id || attachment.id) + '_menu').text().indexOf('金币') > 0;
+    if (!needJB) {
+      //console.log('attachment:', attachment.href, $('#' + $(attachment).parent().id + '_menu').text());
+      crawler.push({uri:attachment.href, type:'attachment'});
+    }
+  });
+
   parse('img', 'image', function (link) {
     crawler.push({uri:link.src, type:'img'});
   });
@@ -36,6 +51,22 @@ module.exports = function (window, $, callback) {
 
 
   if (config.crawlOptions.recursive) {
+    //thread links
+    if (flag % 2 === 0) {
+      parse('a[href$=".html"][href^="forum"]', 'forum', function (link) {
+        if (link.href.indexOf("nocancer.com.cn") > -1) {
+          crawler.push({uri:link.href, type:'link'});
+        }
+      });
+    } else {
+      parse('a[href$=".html"][href^="thread"]', 'thread', function (link) {
+        if (link.href.indexOf("nocancer.com.cn") > -1) {
+          crawler.push({uri:link.href, type:'link'});
+        }
+      });
+    }
+
+
     //archive links
     parse('a[href^="archiver/"],a[href^="?tid-"]', 'Archive', function (a) {
       if (a.href.indexOf("nocancer.com.cn") > -1) {
@@ -50,31 +81,28 @@ module.exports = function (window, $, callback) {
       }
     });
 
-    //thread links
-    parse('a[href$=".html"]', 'thread&forum', function (link) {
-      if (link.href.indexOf("nocancer.com.cn") > -1) {
+    parse('a[href="group.php"],a[href="portal.php"],a[href="home.php"]', 'p&f&g', function (link) {
+      //console.log('group:', link.href);
+      if (/\.php$/.test(link.href)) {
+        //console.log('push:', link.href, crawler.push({uri:link.href, type:'link'}));
+        crawler.push({uri:link.href, type:'link'});
+      }
+    });
+
+    parse('a[href^="group.php?gid="]', 'group', function (link) {
+      //console.log('group:', link.href);
+      if (/group\.php\?gid=\(d{1,3}$/.test(link.href)) {
+        crawler.push({uri:link.href, type:'link'});
+      }
+    });
+
+    parse('a[href^="home.php?mod=space&uid="]', 'space', function (link) {
+      if (/home\.php\?mod=space&uid=\d{1,6}$/.test(link.href)) {
         crawler.push({uri:link.href, type:'link'});
       }
     });
   }
 
-
-  //pipe images
-  //TODO(mxfli) add attachemen file name
-  parse('img[file^="forum.php?mod=attachment"]', "images", function (img) {
-    crawler.push({uri:"http://www.nocancer.com.cn/" + img.getAttribute('file'), type:'attachment'});
-    crawler.push({uri:"http://www.nocancer.com.cn/" + img.getAttribute('zoomfile'), type:'attachment'});
-  });
-
-  //pipe attachments and not need JB
-  //TODO(mxfli) add attachemen file name
-  parse('a[href^="forum.php?mod=attachment"]', 'attachments', function (attachment) {
-    var needJB = $('#' + (attachment.parentNode.id || attachment.id) + '_menu').text().indexOf('金币') > 0;
-    if (!needJB) {
-      //console.log('attachment:', attachment.href, $('#' + $(attachment).parent().id + '_menu').text());
-      crawler.push({uri:attachment.href, type:'attachment'});
-    }
-  });
 
   console.log('found :', linkStacks.join(';'));
 

@@ -45,6 +45,7 @@ var loadQueue = function () {
   var _processingStack = loadJson(processDumFile, {});
   //将上次正在处理的uri加载到队列的开始。
   Object.keys(_processingStack).forEach(function (uri) {queue.unshift(_processingStack[uri])});
+  //Object.keys(failedStack).forEach(function (uri) {queue.unshift(failedStack[uri])});
 };
 
 loadQueue();
@@ -133,16 +134,10 @@ function crawl() {
   var uri = uriObj['uri'];
 
   processingStack[uri] = uriObj;
-
-  //queueInfo();
-
-  //TODO(@Inaction) 不能直接使用pipe了。需要像connect一样有多个router顺序判断来执行。
   console.log("Crawl   :", uri);
 
   var filePath = getFilePath(uriObj);
-
   //console.log('File', filePath);
-
 
   utilBox.preparePath(path.dirname(filePath));
 
@@ -192,7 +187,7 @@ function crawl() {
                                        return;
                                      }
                                      //console.log('Parse HTML :', uri);
-                                     requestOptions.callback(window, window.$, tailFunction);
+                                     requestOptions.callback(window, window.$, tailFunction,requestOptions['updateFlag']);
                                    }});
 
           }
@@ -234,17 +229,20 @@ function isURL(uri) {
 }
 
 var isNeedUpdate = function (link) {
-  return (/(archiver\/\?.+?.html|thread-.+?-.+?-.+?\.html|forum.+?\.html|forum.php)$/.test(link)
-      && finishedStack[link] !== requestOptions['updateFlag']);
+  //return (/(group-.+?-.+?\.html|archiver\/\?.+?.html|thread-.+?-.+?-.+?\.html|forum.+?\.html|forum.php|group.php)$/.test(link)
+  return /nocancer\.com\.cn/.test(link) && (finishedStack[link] !== requestOptions['updateFlag']);
 };
 
 var crawler = function crawler() {
   var that = {};
 
+  //TODO(Inaction) add crawl mode;update mode;last update mode.
+
   that.push = function (url) {
     var uri = {type:'link'};
     if (typeof url === 'string') {
       uri.uri = url;
+      uri.failedCount = 0;
     } else {
       //copy properties from url object.
       uri.uri = url.uri;

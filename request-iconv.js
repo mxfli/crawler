@@ -1,6 +1,6 @@
 var request = require('request');
 var streamBuffers = require("stream-buffers");
-//var Iconv = require('iconv').Iconv;
+var Iconv = require('iconv').Iconv;
 var iconvLite = require('iconv-lite');
 
 
@@ -16,11 +16,12 @@ module.exports = function requestWithIconv(options, outerCB) {
       outerCB(error);
     } else {
       try {
+        //TODO(Inaction) add mode suport
         if (/(gbk)$/i.test(response.headers['content-type'])) {
-//          var body = new Iconv('GBK', "UTF-8").convert(bodyBuffer).toString()
-//              .replace("text\/html; charset=gbk", "text\/html; charset=utf-8");
-          var body = iconvLite.fromEncoding(bodyBuffer, 'GBK')
+          var body = new Iconv('GBK', "UTF-8").convert(bodyBuffer).toString()
               .replace("text\/html; charset=gbk", "text\/html; charset=utf-8");
+//          var body = iconvLite.fromEncoding(bodyBuffer, 'GBK')
+//              .replace("text\/html; charset=gbk", "text\/html; charset=utf-8");
         }
       } catch (e) {
         error = e;

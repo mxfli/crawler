@@ -8,7 +8,7 @@
  */
 
 /**
- * TODO(mxfli) fix attatchment file name and url check.
+ * fix attatchment file name and url check.
  *
  *     function aidencode($aid, $type = 0, $tid = 0) {
  *         global $_G;

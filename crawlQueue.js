@@ -47,7 +47,6 @@ var crawlQueue = (function () {
     queueInfo();
   };
 
-  //TODO use array copy and non blocking method
   var dumpQueue = function () {
 
     function dump() {
