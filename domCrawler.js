@@ -11,11 +11,10 @@ var fs = require('fs');
 var URL = require('url');
 var path = require('path');
 var utilBox = require('./utilbox.js');
-var attchments = require('./attachment.js');
+var attchments = require('./plugins/discuz/attachment.js');
 
 //Load jQuery source code to string.
 var jQuerySrc = fs.readFileSync('./jquery/jquery-1.7.1.min.js').toString();
-//var updated = 3;
 
 var requestOptions = config.requestOptions;
 
@@ -187,7 +186,7 @@ function crawl() {
                                        return;
                                      }
                                      //console.log('Parse HTML :', uri);
-                                     requestOptions.callback(window, window.$, tailFunction,requestOptions['updateFlag']);
+                                     requestOptions.callback(window, window.$, tailFunction, requestOptions['updateFlag']);
                                    }});
 
           }

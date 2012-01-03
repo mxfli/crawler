@@ -5,6 +5,6 @@
  * Description:
  *      Description of clearAttachements.js
  */
-var att = require('./attachment.js');
+var discuzAttachment = require('plugins/attachment.js');
 
-att.clear();
+discuzAttachment.clear();

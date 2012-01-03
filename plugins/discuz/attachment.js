@@ -5,6 +5,7 @@
  * Description:
  *      Description of attachment.js.js
  *      folder sum =  18G  www.nocancer.com.cn/
+ *      after clean: 5.4G
  */
 
 /**
@@ -21,7 +22,7 @@
 var url = require('url');
 var path = require('path');
 var fs = require('fs');
-var utilBox = require('./utilbox.js');
+var utilBox = require('../../utilbox.js');
 
 var finishedStack = {};
 

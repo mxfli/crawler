@@ -1,4 +1,4 @@
-var crawler = require('../SmartCrawler.js');
+var crawler = require('../../domCrawler.js');
 var jsdom = require('jsdom');
 
 /**

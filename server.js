@@ -1,9 +1,16 @@
+/**
+ * The crawler site server for crawled site and admin cp for crawler.
+ */
+
+//TODO(Inaction) add crawler controle to the server,can start/pause/stop the crawler.
+//TODO(Inaction) add crawler morniter to the server,web log/crawl report and chart/
+
 require('./config/config.js');
 
 var connect = require('connect');
 var fs = require('fs');
 var path = require('path');
-var att = require('./attachment.js');
+var att = require('plugins/attachment.js');
 var utils = require('./utilbox.js');
 var zlib = require("zlib");
 
@@ -50,7 +57,8 @@ connect(
             next();
             return;
           }
-//          response.setHeader('Content-Length', stats.size);
+          //BUG(Inaction) when use gzip the file size is not sutable.
+          //response.setHeader('Content-Length', stats.size);
 
           var lastModified = stats.mtime.toUTCString();
           var ifModifiedSince = "If-Modified-Since".toLowerCase();

@@ -5,7 +5,7 @@
  * Description:
  *      Description of attachment-test.js
  */
-var att = require('../attachment.js');
+var att = require('../plugins/discuz/attachment.js');
 
 var assert = require('assert');
 filePath = att.getAttFilePath('http://www.nocancer.com.cn/forum.php?mod=attachment&aid=MzMyOHw1YmNmMjU0ZnwxMzI1MjU4ODI3fDk5NXw5Nzg2');

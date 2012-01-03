@@ -5,11 +5,13 @@
  * Description:
  *      Description of cssparser.js
  */
+//TODO(Inaction) Add CSS import parse.
+//TODO(Inaciton) Add this parser to crawler.
 
-require("./config/config.js");
+require("config/config.js");
 var path = require('path');
 var fs = require('fs');
-var crawler = require('./SmartCrawler.js');
+var crawler = require('domCrawler.js');
 
 console.log('Set process name :', config.appName);
 
