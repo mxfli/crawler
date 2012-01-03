@@ -34,8 +34,8 @@ connect(
     },
     function (req, res, next) {
       if (/\.(php)$/.test(req.url) ||
-          /^\/home\.php\?mod=space&uid=\d{1,3}$/.test(req.url) ||
-          /forum.php\?gid/.test(req.url) ||
+          /^\/home\.php\?mod=space&uid=\d{1,6}$/.test(req.url) ||
+          /forum\.php\?gid=/.test(req.url) ||
           /group\.php?gid=/.test(req.url) ||
           /^\/archiver\/\?/.test(req.url)) {
         res.setHeader("Content-Type", 'text/html; charset="utf-8"');
