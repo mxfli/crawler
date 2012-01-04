@@ -1,11 +1,11 @@
 var crawler = require('../../domCrawler.js');
-var jsdom = require('jsdom');
 
 /**
  * 具体执行扒站的分析代码，原则上只取有效的代码
  * 注：下面的代码要符合JS DOM编程规范,$是jQuery的符号，可以用jQuery
  * 堆栈的原则是后进先出，可以用来调整下载的顺序；
  */
+//TODO(Inaction) Add disable enable features config to plugin manager.
 module.exports = function (window, $, callback, flag) {
   //console.log("Processing resources in page ", $("title").text().replace('- Powered by Discuz!', ''));
   var linkStacks = [];

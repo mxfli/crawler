@@ -12,7 +12,7 @@ var ctp = require('../../node-cookies.txt/index.js');
 var crawler = require("../domCrawler.js");
 var discuzX2Plugin = require('../plugins/discuz/discuzX2.js');
 
-ctp.parse('./nocancer_cookies.txt', function (cookies) {
+ctp.parse('./nocancer_cookies.txt', function () {
   crawler.init({jar:ctp, callback:discuzX2Plugin, update:true, updateFlag:1231});
   crawler.crawl('http://www.nocancer.com.cn/forum.php');
   //crawler.push('http://www.nocancer.com.cn/portal.php');

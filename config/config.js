@@ -20,18 +20,19 @@ config.crawlOptions = {
   requestTimeout:30 * 1000,
   savePoint:50, //save data every 50 rui finished.
   recursive:true,
-  updateFlag : true
+  updateFlag:true,
+  working_root_path: '/tmp/crawler'
 };
 
 //Default client http request options
 config.requestOptions = {
-  domain:'www.nocancer.com.cn',
+  domain:'',
   port:80,
   path:'/',
   "Connection":'keep-Alive',
   "Accept-Encoding":'gzip,deflate,sdch',
   //cookie use cookie.txt
-  cookie:"",
+  cookie:'',
   //Default user angent is google chrome 16
   "User-Agent":'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7'
 };

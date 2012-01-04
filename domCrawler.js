@@ -6,15 +6,17 @@
  *     Smart crawler of using rquest.pipe
  */
 var requestPipe = require('request');
+//TODO(Inaction) remove request-iconv.js will implement in request.pipe module.
 var requestIconv = require('./request-iconv.js');
 var fs = require('fs');
 var URL = require('url');
 var path = require('path');
 var utilBox = require('./utilbox.js');
+//TODO(Inaction) use attachement as discuz plugin.
 var attchments = require('./plugins/discuz/attachment.js');
 
 //Load jQuery source code to string.
-var jQuerySrc = fs.readFileSync('./jquery/jquery-1.7.1.min.js').toString();
+var jQuerySrc = fs.readFileSync(path.join(__dirname, 'jquery/jquery-1.7.1.min.js')).toString();
 
 var requestOptions = config.requestOptions;
 
@@ -24,10 +26,13 @@ var processingStack = {};
 var failedStack = {};
 var finishedStack = {};
 
-var finishedDumFile = __dirname + '/finished.json';
-var failedDumFile = __dirname + '/failed.json';
-var queueDumFile = __dirname + '/queue.json';
-var processDumFile = __dirname + '/process.json';
+var working_root_path = config.crawlOptions.working_root_path;
+utilBox.preparePath(working_root_path);
+
+var finishedDumFile = working_root_path + '/finished.json';
+var failedDumFile = working_root_path + '/failed.json';
+var queueDumFile = working_root_path + '/queue.json';
+var processDumFile = working_root_path + '/process.json';
 
 var loadQueue = function () {
   var loadJson = function (fileName, defaultValue) {
@@ -108,7 +113,7 @@ var getFilePath = function (uriObj) {
   if (/\/$/.test(baseName)) {
     baseName = path.join(baseName, 'index.html');
   }
-  return path.join(__dirname, config.crawlOptions['host'], baseName);
+  return path.join(working_root_path, config.crawlOptions['host'], baseName);
 };
 
 function queueInfo() {
@@ -166,7 +171,9 @@ function crawl() {
         fs.writeFile(filePath, body, tailFunction);
       } else {
         fs.writeFile(filePath, body
+          //TODO(Inaction) replace absolute path to relative path.
             .replace(/www\.nocancer\.com\.cn/g, 'nocancer.inaction.me')
+          //TODO(Inaction) add this to plugin's before save functions;
             .replace('3836526', '6089389').replace(/undefined$/, ''), 'utf8', function (err) {
           if (err) {
             tailFunction(err);
@@ -222,6 +229,7 @@ function crawl() {
 
 
 function isURL(uri) {
+  //TODO(Inaction) http & https only
   var regxp = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
   //if (!regxp.test(uri)) console.error('push link err:', uri);
   return regxp.test(uri);
@@ -229,7 +237,7 @@ function isURL(uri) {
 
 var isNeedUpdate = function (link) {
   //return (/(group-.+?-.+?\.html|archiver\/\?.+?.html|thread-.+?-.+?-.+?\.html|forum.+?\.html|forum.php|group.php)$/.test(link)
-  return /nocancer\.com\.cn/.test(link) && (finishedStack[link] !== requestOptions['updateFlag']);
+  return finishedStack[link] !== requestOptions['updateFlag'];
 };
 
 var crawler = function crawler() {
@@ -257,9 +265,9 @@ var crawler = function crawler() {
 
     if (!isURL(link)) {return false;} //is not url exit
 
-    //51.la exit
-    var isExcludedLink = /(51\.la)|(bbs\.jhnews\.com\.cn)|(nocancer\.com\.cn:8080\/)/.test(link);
-    if (isExcludedLink) {return false;}
+    //51.la exit TODO(Inaction) remove hadcode here: use url.parse(url).port/hostname
+    //var isExcludedLink = /(51\.la)|(bbs\.jhnews\.com\.cn)|(nocancer\.com\.cn:8080\/)/.test(link);
+    //if (isExcludedLink) {return false;}
 
     // in queue exit
     var isInQueue = queue.some(function (e) {return e.uri === link });
