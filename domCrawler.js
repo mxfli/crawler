@@ -48,10 +48,7 @@ var getFilePath = function (uriObj) {
  */
 function crawl(uriObj) {
   //console.log(uriObj);
-  //return;
   var uri = uriObj['uri'];
-
-  //processingStack[uri] = uriObj;
   console.log("Crawl   :", uri);
 
   var filePath = getFilePath(uriObj);
@@ -59,27 +56,31 @@ function crawl(uriObj) {
 
   utilBox.preparePath(path.dirname(filePath));
 
+  var tailFunction = function (err, uriObj, statusCode) {
+    console.error('Crawled', err ? 'ERROR :' : ':', uri);
+    if (err) {
+      uriObj.failedCount += 1;
+      domCrawlQueue.fail(uriObj);
+    } else if (statusCode > 400) {
+      uriObj.failedCount = config.crawlOptions.maxRetryCount;
+      domCrawlQueue.fail(uriObj);
+    } else {
+      domCrawlQueue.finish(uriObj);
+    }
+  };
+
   if (uriObj.type !== "link") {
     //console.log('Pipe download:', uri);
-    request.get({uri:uri, jar:requestOptions.jar}, pipeCallback).pipe(fs.createWriteStream(filePath));
+    request.get({uri:uri, jar:requestOptions.jar},
+                function (err, response) {
+                  tailFunction(err, uriObj, response && response.statusCode || 500);
+                }).pipe(fs.createWriteStream(filePath));
 
-    function pipeCallback(err) {
-      console.log('Crawled', err ? 'ERROR :' : ':', uri);
-      //delete processingStack[uri];
-      if (err) {
-        uriObj.failedCount = config.crawlOptions.maxRetryCount;
-        domCrawlQueue.fail(uriObj);
-      } else {
-        //console.log("Pipe save:", filePath);
-        domCrawlQueue.finish(uriObj);
-      }
-      //process.nextTick(crawl);
-    }
   } else {
     request.get({uri:uri, encoding:null, jar:requestOptions.jar}, iconvCallback);
     function iconvCallback(err, response, body) {
       if (err) {
-        tailFunction(err);
+        tailFunction(err, uriObj, response.statusCode);
       } else {
         console.assert(Buffer.isBuffer(body));
         //console.log('type of body is buffer', Buffer.isBuffer(body));
@@ -88,7 +89,7 @@ function crawl(uriObj) {
             body = new Iconv('GBK', "UTF-8").convert(body).toString()
                 .replace("text\/html; charset=gbk", "text\/html; charset=utf-8");
           } catch (e) {
-            tailFunction(e);
+            tailFunction(e, uriObj);
           }
         }
         fs.writeFile(filePath, body
@@ -97,7 +98,7 @@ function crawl(uriObj) {
           //TODO(Inaction) add this to plugin's before save functions;
             .replace('3836526', '6089389').replace(/undefined$/, ''), 'utf8', function (err) {
           if (err) {
-            tailFunction(err);
+            tailFunction(err, uriObj);
             return;
           }
           if (requestOptions.callback && /(html|xml)/.test(response.headers['content-type'])) {
@@ -110,29 +111,17 @@ function crawl(uriObj) {
             require('jsdom').env({html:body, src:[jQuerySrc],
                                    done:function (err, window) {
                                      if (err) {
-                                       tailFunction(err);
+                                       tailFunction(err, uriObj);
                                        return;
                                      }
                                      //console.log('Parse HTML :', uri);
-                                     requestOptions.callback(window, window.$, tailFunction, requestOptions['updateFlag']);
+                                     requestOptions.callback(window, window.$, tailFunction.bind(null, null, uriObj), requestOptions['updateFlag']);
                                    }});
 
           }
         });
       }
-      //错误的防盗错误队列进行处理
-      function tailFunction(err) {
-        console.error('Crawled', err ? 'ERROR :' : ':', uri);
-        if (err) {
-          uriObj.failedCount += 1;
-          domCrawlQueue.fail(uriObj);
-        } else if (response.statusCode > config.maxMemoryUsage) {
-          uriObj.failedCount = config.crawlOptions.maxRetryCount;
-          domCrawlQueue.fail(uriObj);
-        } else {
-          domCrawlQueue.finish(uriObj);
-        }
-      }
+
 
     }
   }
@@ -190,7 +179,7 @@ var crawler = function crawler() {
    * @param options
    */
   that.init = function (options) {
-    utilBox.copyProperites(requestOptions,options);
+    utilBox.copyProperites(requestOptions, options);
     return that;
   };
 
