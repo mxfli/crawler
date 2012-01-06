@@ -7,6 +7,9 @@
  */
 
 require('../config/config.js');
+//Overide default options;
+config.crawlOptions.working_root_path = __dirname + '/qicai';
+
 var domCrawler = require('../domCrawler.js');
 var cookieAgent = require('../../node-cookies.txt/index.js');
 var qicaiThreadParser = function (window, $, callback) {
@@ -24,6 +27,6 @@ var qicaiThreadParser = function (window, $, callback) {
 config.crawlOptions.recursive = false;
 
 cookieAgent.parse(__dirname + '/ngotcm_cookies.txt', function () {
-  domCrawler.init({jar:cookieAgent, callback:qicaiThreadParser, updateFlag:1});
+  domCrawler.init({jar:cookieAgent, callback:qicaiThreadParser, updateFlag:3});
   domCrawler.crawl('http://www.ngotcm.com/forum/thread-50247-1-1.html');
 });

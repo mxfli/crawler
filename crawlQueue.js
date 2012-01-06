@@ -1,56 +1,50 @@
-/**
- * FileName: crawlQueue.js
- * Author: @mxfli
- * CreateTime: 2011-12-26 20:05
- * Description:
- *      Description of crawlQueue.js
- */
-
 var fs = require('fs');
-var util = require('util');
 var path = require('path');
 
-
-var crawlQueue = (function () {
-  var queue = [];             // {uri:'http://www.nocancer.com.cn', type:'link'}
-  var processingStack = {};   // "_uri_example":'http://www.nocancer.com.cn/forum.php'};
-  var failedStack = {};       // "_uri_example":{uri:'http://www.nocancer.com.cn/forum.php', failedCount:4}
-  var finishedStack = {};     // "_uri_example":{uri:"http:www.nocancer.com.cn/lkjldjf.html", meta:{"content-type":"image"}}
-
-  var finishedDumFile = __dirname + '/finished.json';
-  var failedDumFile = __dirname + '/failed.json';
-  var queueDumFile = __dirname + '/queue.json';
-  var processDumFile = __dirname + '/process.json';
-
-  var loadQueue = function () {
-    if (path.existsSync(finishedDumFile)) {
-      finishedStack = JSON.parse(fs.readFileSync(finishedDumFile).toString());
-    }
-    if (path.existsSync(queueDumFile)) {
-      queue = JSON.parse(fs.readFileSync(queueDumFile).toString());
-    }
-    if (path.existsSync(failedDumFile)) {
-      failedStack = JSON.parse(fs.readFileSync(failedDumFile).toString());
-      for (var j in failedStack) {
-        failedStack[j].failedCount = 0;
-        queue.unshift(failedStack[j]);
-      }
-      failedStack = {};
-    }
-    if (path.existsSync(processDumFile)) {
-      processingStack = JSON.parse(fs.readFileSync(processDumFile).toString());
-      for (var i in processingStack) {
-        queue.push(processingStack[i]);
-      }
-      processingStack = {};
-    }
-    queueInfo();
+var crawlQueue = function (baseDir, crawl) {
+  var queue = {queue:[], processingStack:{}, finishedStack:{}, failedStack:{}};
+  var that = {};
+  //var files = {queue:[]};
+  var dataFiles = {
+    finishedDumFile:path.join(baseDir, 'finished.json'),
+    failedDumFile:path.join(baseDir, 'failed.json'),
+    processDumFile:path.join(baseDir, 'process.json'),
+    queueDumFile:path.join(baseDir, 'queue.json')
   };
 
-  var dumpQueue = function () {
+  function queueInfo() {
+    console.log('Queue:', queue.queue.length,
+                '; processing:', Object.keys(queue.processingStack).length,
+                '; Finished:', Object.keys(queue.finishedStack).length,
+                '; Failed:', Object.keys(queue.failedStack).length);
+  }
 
+  /**
+   * load queue data and stacks data.
+   */
+  that.loadQueue = function () {
+    var loadJson = function (fileName, defaultValue) {
+      console.log('Load JSON:', fileName);
+      if (path.existsSync(fileName)) {
+        return JSON.parse(fs.readFileSync(fileName).toString()) || defaultValue || {};
+      } else {
+        return defaultValue || {};
+      }
+    };
+
+    queue.finishedStack = loadJson.call(null, dataFiles.finishedDumFile, {});
+    queue.queue = loadJson.call(null, dataFiles.queueDumFile, []);
+    queue.failedStack = loadJson(dataFiles.failedDumFile, {});
+    var _processingStack = loadJson(dataFiles.processDumFile, {});
+    //将上次正在处理的uri加载到队列的开始。
+    Object.keys(_processingStack).forEach(function (uri) {queue.queue.unshift(_processingStack[uri])});
+    //Object.keys(failedStack).forEach(function (uri) {queue.unshift(failedStack[uri])});
+  };
+
+  that.dumpQueue = function () {
+    //real dum function
     function dump() {
-      if (queue.length === 0 && Object.keys(processingStack).length === 0) {
+      if (queue.queue.length === 0 && Object.keys(queue.processingStack).length === 0) {
         if (retry > 2) {
           clearInterval(timer);
           console.log('queue is empty Exit dump Queue listener....');
@@ -61,29 +55,34 @@ var crawlQueue = (function () {
         }
       }
 
-      if (Object.keys(processingStack).length < config.crawlOptions.maxConnections && queue.length > 0) {
-        var uriObj = queue.pop();
-        processingStack[uriObj.uri] = uriObj;
-        process.nextTick(crawler.bind(null, uriObj));
-      }
+      var next = function () {
+        if (Object.keys(queue.processingStack).length < config.crawlOptions.maxConnections && queue.queue.length > 0) {
+
+          var uriObj = queue.queue.shift();
+          process.nextTick(crawl.bind(null, uriObj));
+          queue.processingStack[uriObj.uri] = uriObj;
+          //continue crawl to max processing size;
+          next();
+        }
+      };
+      next();
 
       console.log('Dumping queue...');
 
       //push processing to queue.
-      //Object.keys(processingStack).forEach(function (key) { queue.push(processingStack[key]); });
-      fs.writeFileSync(finishedDumFile, JSON.stringify(finishedStack));
+      fs.writeFileSync(dataFiles.finishedDumFile, JSON.stringify(queue.finishedStack));
       //console.log("dump fishedStack");
-      fs.writeFileSync(failedDumFile, JSON.stringify(failedStack));
+      fs.writeFileSync(dataFiles.failedDumFile, JSON.stringify(queue.failedStack));
       //console.log('dum failedStack');
-      fs.writeFileSync(queueDumFile, JSON.stringify(queue));
+      fs.writeFileSync(dataFiles.queueDumFile, JSON.stringify(queue.queue));
       //console.log('dum queueStack');
-      fs.writeFileSync(processDumFile, JSON.stringify(processingStack));
+      fs.writeFileSync(dataFiles.processDumFile, JSON.stringify(queue.processingStack));
 
-      queueInfo();
       console.log('Dump queue ok.');
+      queueInfo();
       var memUsage = process.memoryUsage().rss / (1024 * 1024);
       console.log('Memory usage:', memUsage.toFixed(2), 'Mb');
-      if (memUsage > 400) {
+      if (memUsage > 390) {
         console.log("Over max memory usage, exit process.");
         process.exit(1);
       }
@@ -93,81 +92,41 @@ var crawlQueue = (function () {
     var timer = setInterval(dump, 5 * 1000);
   };
 
-  var queueInfo = function () {
-    console.log('Queue:', queue.length,
-                '; processing:', Object.keys(processingStack).length,
-                '; Finished:', Object.keys(finishedStack).length,
-                '; Failed:', Object.keys(failedStack).length);
-  };
-
-  var regxp = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
-  var isURL = function (uri) {
-    var result = regxp.test(uri);
-    if (!result) console.error('push link err:', uri);
-    return result;
-  };
-
-  var isLastThread = function (link) {
-    var isLast = false;
-    isLast = /forum\.php$/.test(link);
-
-    if (/thread-.+?-.+?-.+?\.html/.test(link) && finishedStack[link]) {
-      var linkArray = link.split("-");
-      linkArray[2] = parseInt(linkArray[2]) + 1;
-      isLast = !!!finishedStack[linkArray.join("")];
-    }
-    return isLast;
-  };
-
-  loadQueue();
-  dumpQueue();
-
-  var that = {};
-  var crawler = false;
-  that.setCrawler = function (_crawler) {
-    crawler = _crawler;
-  };
-
-  that.push = function (url) {
-    var uri = {type:'link'};
-    if (typeof url === 'string') {
-      uri.uri = url;
-    } else {
-      //copy properties from url object.
-      uri.uri = url.uri;
-      uri.type = url.type;
-      uri.failedCount = url.failedCount ? url.failedCount : 0;
-    }
-
-    var link = uri.uri;
-    if (uri.type !== 'link' && link.indexOf('http') < 0) {
-      uri.uri = link = 'http://' + config.crawlOptions['host'] + '/' + link;
-    }
-    var isExcludedLink = /51\.la/.test(link);
-    var isInQueue = queue.some(function (e) {return e.uri === link });
-    if ((config.requestOptions.update && uri.type === 'link' && isLastThread(link)) || !(!isURL(link) || isInQueue || isExcludedLink || (link in failedStack && failedStack[link].failedCount > config.crawlOptions.maxRetryCount) || link in processingStack || link in finishedStack)) {
-      if (link !== 'http://www.nocancer.com.cn/') {
-        crawlQueue.push(uri);
+  that.push = function (uriObj) {
+    var link = uriObj.uri;
+    var isNeedUpdate = function (uri) {
+      if (uri.type === 'link') {
+        return queue.finishedStack[link] !== config.requestOptions['updateFlag'];
+      } else if (uri.type !== 'attachment') {
+        return !(link in queue.finishedStack);
       }
+    };
+
+    // exit
+    var isMaxFiled = (link in queue.failedStack) && queue.failedStack[link].failedCount > config.crawlOptions.maxRetryCount;
+    if (isMaxFiled) {return;}
+
+    if (!isNeedUpdate(uriObj)) {return;}
+    if (uriObj.uri in queue.processingStack) {return;}
+    if (!queue.queue.some(function (e) {return e.uri === link;})) {
+      queue.queue.push(uriObj);
     }
   };
 
-  that.next = function () {return queue.shift()};
-  var reCrawled = function () {};
-  that.crawled = function (uriObj) {
-    finishedStack[uriObj.uri] = true;
-    delete processingStack[uriObj.uri];
-  };
-  that.failed = function (uriObj) {
-    uriObj.failedCount = uriObj.failedCount + 1;
-    failedStack[uri] = uriObj;
-
-    delete processingStack[uri];
-    uriObj.failedCount < config.crawlOptions.maxRetryCount && queue.push(uriObj);
+  that.finish = function (uriObj) {
+    delete queue.processingStack[uriObj.uri];
+    if (uriObj.type !== 'attachment') {queue.finishedStack[uriObj.uri] = config.crawlOptions.updateFlag;}
   };
 
+  that.fail = function (uriObj) {
+    delete queue.processingStack[uriObj.uri];
+    uriObj.failedCount += 1;
+    queue.failedStack[uriObj.uri] = uriObj;
+    if (uriObj.failedCount < config.crawlOptions.maxRetryCount) {
+      queue.queue.unshift(uriObj);
+    }
+  };
   return that;
-
-})();
+};
 
 module.exports = crawlQueue;

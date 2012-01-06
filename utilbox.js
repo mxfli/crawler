@@ -52,3 +52,16 @@ utilBox.parseRange = function (str, size) {
 
   return {start:start, end:end};
 };
+
+utilBox.isURL = function (url) {
+  var reexp = /^https?:/;
+  //TODO(Inaction) http & https only
+  //var regxp = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
+  return /^https?:/.test(url || '');
+};
+
+utilBox.copyProperites = function (target, source) {
+  Object.keys(source).forEach(function (key) {
+    target[key] = source[key];
+  });
+};

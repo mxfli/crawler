@@ -5,12 +5,11 @@
  * Description:
  *     Smart crawler of using rquest.pipe
  */
-var requestPipe = require('request');
-//TODO(Inaction) remove request-iconv.js will implement in request.pipe module.
-var requestIconv = require('./request-iconv.js');
+var request = require('request');
 var fs = require('fs');
 var URL = require('url');
 var path = require('path');
+var Iconv = require('iconv').Iconv;
 var utilBox = require('./utilbox.js');
 //TODO(Inaction) use attachement as discuz plugin.
 var attchments = require('./plugins/discuz/attachment.js');
@@ -18,85 +17,13 @@ var attchments = require('./plugins/discuz/attachment.js');
 //Load jQuery source code to string.
 var jQuerySrc = fs.readFileSync(path.join(__dirname, 'jquery/jquery-1.7.1.min.js')).toString();
 
-var requestOptions = config.requestOptions;
-
-//uri types: link, img, attachment {uri:'',type:'',failedCount:0}
-var queue = [];
-var processingStack = {};
-var failedStack = {};
-var finishedStack = {};
-
 var working_root_path = config.crawlOptions.working_root_path;
 utilBox.preparePath(working_root_path);
+var requestOptions = config.requestOptions;
 
-var finishedDumFile = working_root_path + '/finished.json';
-var failedDumFile = working_root_path + '/failed.json';
-var queueDumFile = working_root_path + '/queue.json';
-var processDumFile = working_root_path + '/process.json';
-
-var loadQueue = function () {
-  var loadJson = function (fileName, defaultValue) {
-    if (path.existsSync(fileName)) {
-      return JSON.parse(fs.readFileSync(fileName).toString()) || defaultValue || {};
-    } else {
-      return defaultValue || {};
-    }
-  };
-
-  finishedStack = loadJson.call(null, finishedDumFile, {});
-  queue = loadJson.call(null, queueDumFile, []);
-  failedStack = loadJson(failedDumFile, {});
-  var _processingStack = loadJson(processDumFile, {});
-  //将上次正在处理的uri加载到队列的开始。
-  Object.keys(_processingStack).forEach(function (uri) {queue.unshift(_processingStack[uri])});
-  //Object.keys(failedStack).forEach(function (uri) {queue.unshift(failedStack[uri])});
-};
-
-loadQueue();
-
-function dumpQueue() {
-  //real dum function
-  function dump() {
-    if (queue.length === 0 && Object.keys(processingStack).length === 0) {
-      if (retry > 2) {
-        clearInterval(timer);
-        console.log('queue is empty Exit dump Queue listener....');
-        return;
-      } else {
-        retry += 1;
-        console.log('queue is empty retry:', retry);
-      }
-    }
-
-    if (Object.keys(processingStack).length === 0 && queue.length > 0) {
-      process.nextTick(crawl);
-    }
-
-    console.log('Dumping queue...');
-
-    //push processing to queue.
-    //Object.keys(processingStack).forEach(function (key) { queue.push(processingStack[key]); });
-    fs.writeFileSync(finishedDumFile, JSON.stringify(finishedStack));
-    //console.log("dump fishedStack");
-    fs.writeFileSync(failedDumFile, JSON.stringify(failedStack));
-    //console.log('dum failedStack');
-    fs.writeFileSync(queueDumFile, JSON.stringify(queue));
-    //console.log('dum queueStack');
-    fs.writeFileSync(processDumFile, JSON.stringify(processingStack));
-
-    console.log('Dump queue ok.');
-    queueInfo();
-    var memUsage = process.memoryUsage().rss / (1024 * 1024);
-    console.log('Memory usage:', memUsage.toFixed(2), 'Mb');
-    if (memUsage > 390) {
-      console.log("Over max memory usage, exit process.");
-      process.exit(1);
-    }
-  }
-
-  var retry = 0;
-  var timer = setInterval(dump, 5 * 1000);
-}
+var crawlQueue = require('./crawlQueue.js');
+var domCrawlQueue = crawlQueue(working_root_path, crawl);
+domCrawlQueue.loadQueue();
 
 
 var getFilePath = function (uriObj) {
@@ -116,28 +43,15 @@ var getFilePath = function (uriObj) {
   return path.join(working_root_path, config.crawlOptions['host'], baseName);
 };
 
-function queueInfo() {
-  console.log('Queue:', queue.length,
-              '; processing:', Object.keys(processingStack).length,
-              '; Finished:', Object.keys(finishedStack).length,
-              '; Failed:', Object.keys(failedStack).length);
-}
 /**
  * Start the crawling the URIs in queue array.
  */
-function crawl() {
-  var processingSize = Object.keys(processingStack).length;
-  if (queue.length === 0 || processingSize >= config.crawlOptions.maxConnections) {
-    //console.log("Over max connections size:", config.crawlOptions.maxConnections, ', skip crawl.');
-    return;
-  }
-
-  if (processingSize < config.crawlOptions.maxConnections) {process.nextTick(crawl);}
-
-  var uriObj = queue.shift();
+function crawl(uriObj) {
+  //console.log(uriObj);
+  //return;
   var uri = uriObj['uri'];
 
-  processingStack[uri] = uriObj;
+  //processingStack[uri] = uriObj;
   console.log("Crawl   :", uri);
 
   var filePath = getFilePath(uriObj);
@@ -147,29 +61,36 @@ function crawl() {
 
   if (uriObj.type !== "link") {
     //console.log('Pipe download:', uri);
-    requestPipe.get({uri:uri, jar:requestOptions.jar}, pipeCallback).pipe(fs.createWriteStream(filePath));
+    request.get({uri:uri, jar:requestOptions.jar}, pipeCallback).pipe(fs.createWriteStream(filePath));
 
     function pipeCallback(err) {
       console.log('Crawled', err ? 'ERROR :' : ':', uri);
-      delete processingStack[uri];
+      //delete processingStack[uri];
       if (err) {
-        uriObj.failedCount = 5;
-        failedStack[uri] = uriObj;
+        uriObj.failedCount = config.crawlOptions.maxRetryCount;
+        domCrawlQueue.fail(uriObj);
       } else {
         //console.log("Pipe save:", filePath);
-        (uriObj.type !== 'attachment') && (finishedStack[uri] = requestOptions['updateFlag']);
+        domCrawlQueue.finish(uriObj);
       }
-      process.nextTick(crawl);
+      //process.nextTick(crawl);
     }
   } else {
-    requestIconv({uri:uri, headers:{"User-Agent":'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7'}, jar:requestOptions.jar}, iconvCallback);
+    request.get({uri:uri, encoding:null, jar:requestOptions.jar}, iconvCallback);
     function iconvCallback(err, response, body) {
       if (err) {
         tailFunction(err);
-      } else if (Buffer.isBuffer(body)) {
-        //没有经过转码的由buffer进行保存，直接输出
-        fs.writeFile(filePath, body, tailFunction);
       } else {
+        console.assert(Buffer.isBuffer(body));
+        //console.log('type of body is buffer', Buffer.isBuffer(body));
+        if (/(gbk)$/i.test(response.headers['content-type'])) {
+          try {
+            body = new Iconv('GBK', "UTF-8").convert(body).toString()
+                .replace("text\/html; charset=gbk", "text\/html; charset=utf-8");
+          } catch (e) {
+            tailFunction(e);
+          }
+        }
         fs.writeFile(filePath, body
           //TODO(Inaction) replace absolute path to relative path.
             .replace(/www\.nocancer\.com\.cn/g, 'nocancer.inaction.me')
@@ -202,43 +123,21 @@ function crawl() {
       //错误的防盗错误队列进行处理
       function tailFunction(err) {
         console.error('Crawled', err ? 'ERROR :' : ':', uri);
-        delete processingStack[uri];
         if (err) {
-          if (failedStack[uri]) {
-            uriObj.failedCount = uriObj.failedCount + 1;
-            failedStack[uri] = uriObj;
-          } else {
-            uriObj.failedCount = 1;
-            failedStack[uri] = uriObj;
-          }
-          (uriObj.failedCount < config.crawlOptions.maxRetryCount) && crawler.push(uriObj);
-        } else if (response.statusCode > 400) {
+          uriObj.failedCount += 1;
+          domCrawlQueue.fail(uriObj);
+        } else if (response.statusCode > config.maxMemoryUsage) {
           uriObj.failedCount = config.crawlOptions.maxRetryCount;
-          failedStack[uri] = uriObj;
+          domCrawlQueue.fail(uriObj);
         } else {
-          (uriObj.type !== 'attachment') && (finishedStack[uri] = requestOptions['updateFlag']);
+          domCrawlQueue.finish(uriObj);
         }
-
-        process.nextTick(crawl);
       }
 
     }
-
   }
 }
 
-
-function isURL(uri) {
-  //TODO(Inaction) http & https only
-  var regxp = /^(?:([A-Za-z]+):)?(\/{0,3})([0-9.\-A-Za-z]+)(?::(\d+))?(?:\/([^?#]*))?(?:\?([^#]*))?(?:#(.*))?$/;
-  //if (!regxp.test(uri)) console.error('push link err:', uri);
-  return regxp.test(uri);
-}
-
-var isNeedUpdate = function (link) {
-  //return (/(group-.+?-.+?\.html|archiver\/\?.+?.html|thread-.+?-.+?-.+?\.html|forum.+?\.html|forum.php|group.php)$/.test(link)
-  return finishedStack[link] !== requestOptions['updateFlag'];
-};
 
 var crawler = function crawler() {
   var that = {};
@@ -263,21 +162,14 @@ var crawler = function crawler() {
       uri.uri = link = 'http://' + config.crawlOptions['host'] + '/' + link;
     }
 
-    if (!isURL(link)) {return false;} //is not url exit
+    if (!utilBox.isURL(link)) {return false;} //is not url exit
 
     //51.la exit TODO(Inaction) remove hadcode here: use url.parse(url).port/hostname
     //var isExcludedLink = /(51\.la)|(bbs\.jhnews\.com\.cn)|(nocancer\.com\.cn:8080\/)/.test(link);
     //if (isExcludedLink) {return false;}
 
-    // in queue exit
-    var isInQueue = queue.some(function (e) {return e.uri === link });
-    if (isInQueue) {return false;}
 
-    // exit
-    var isMaxFiled = (link in failedStack) && failedStack[link].failedCount > config.crawlOptions.maxRetryCount;
-    if (isMaxFiled) {return false;}
-
-    if (link in processingStack) {return false;}
+    //if (link in processingStack) {return false;}
 
     //attachment exists exit
     if (uri.type === 'attachment' && attchments.exists(link)) {
@@ -287,12 +179,8 @@ var crawler = function crawler() {
       //console.log('attachment not exists,continue download.');
     }
 
-    if (uri.type === 'link') {
-      if (!isNeedUpdate(link)) {return false;}
-    } else if (uri.type !== 'attachment') {
-      if (link in finishedStack) {return false;}
-    }
-    queue.push(uri);
+
+    domCrawlQueue.push(uri);
     return true;
   };
 
@@ -302,9 +190,7 @@ var crawler = function crawler() {
    * @param options
    */
   that.init = function (options) {
-    for (var i in options) {
-      requestOptions[i] = options[i];
-    }
+    utilBox.copyProperites(requestOptions,options);
     return that;
   };
 
@@ -317,16 +203,8 @@ var crawler = function crawler() {
     config.crawlOptions['host'] = url.hostname;
     console.log('Add domain for base uri:', config.crawlOptions['host']);
 
-    //Default use disk, options use plugin for db:mongodb
-    if (!path.existsSync(config.crawlOptions['host'])) {
-      fs.mkdirSync(config.crawlOptions['host']);
-      console.log('mkdir : ', config.crawlOptions['host']);
-    }
-
-
     that.push({uri:baseURI, type:'link', failedCount:0 });
-    process.nextTick(crawl);
-    dumpQueue();
+    domCrawlQueue.dumpQueue();
   };
 
 
