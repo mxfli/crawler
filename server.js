@@ -4,6 +4,7 @@
 
 //TODO(Inaction) add crawler controle to the server,can start/pause/stop the crawler.
 //TODO(Inaction) add crawler morniter to the server,web log/crawl report and chart/
+//TODO(Inaction) user plugin too for the server. So you need intigration server and client.
 
 require('./config/config.js');
 

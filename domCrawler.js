@@ -135,7 +135,7 @@ function crawl(uriObj) {
 var crawler = function crawler() {
   var that = {};
 
-  //TODO(Inaction) add crawl mode;update mode;last update mode.
+  //TODO(Inaction) add crawl all mode;update all mode;last update mode.
 
   that.push = function (url) {
     var uri = {type:'link'};
