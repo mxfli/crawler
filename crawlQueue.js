@@ -94,11 +94,14 @@ var crawlQueue = function (baseDir, crawl) {
 
   that.push = function (uriObj) {
     var link = uriObj.uri;
+    // Need update crawl return true;
     var isNeedUpdate = function (uri) {
       if (uri.type === 'link') {
-        return queue.finishedStack[link] !== config.requestOptions['updateFlag'];
+        return queue.finishedStack[link] !== config.requestOptions.updateFlag;
       } else if (uri.type !== 'attachment') {
         return !(link in queue.finishedStack);
+      } else { // attachements is out side.
+        return true;
       }
     };
 
@@ -107,6 +110,7 @@ var crawlQueue = function (baseDir, crawl) {
     if (isMaxFiled) {return;}
 
     if (!isNeedUpdate(uriObj)) {return;}
+
     if (uriObj.uri in queue.processingStack) {return;}
     if (!queue.queue.some(function (e) {return e.uri === link;})) {
       queue.queue.push(uriObj);

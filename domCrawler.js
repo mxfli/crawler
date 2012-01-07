@@ -140,8 +140,6 @@ function crawl(uriObj) {
         });
       }
     }
-
-    ;
   }
 }
 
