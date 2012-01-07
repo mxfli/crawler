@@ -8,7 +8,9 @@
 
 require('../config/config.js');
 //Overide default options;
+
 config.crawlOptions.working_root_path = __dirname + '/qicai';
+config.crawlOptions.maxConnections = 5;
 
 var domCrawler = require('../domCrawler.js');
 var cookieAgent = require('../../node-cookies.txt/index.js');

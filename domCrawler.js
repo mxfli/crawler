@@ -125,9 +125,7 @@ function crawl(uriObj) {
           }
         });
       }
-
-
-    }
+    };
   }
 }
 
