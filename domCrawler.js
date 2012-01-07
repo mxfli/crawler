@@ -12,24 +12,23 @@ var path = require('path');
 var Iconv = require('iconv').Iconv;
 var utilBox = require('./utilbox.js');
 //TODO(Inaction) use attachement as discuz plugin.
-var attchments = require('./plugins/discuz/attachment.js');
+var attachment = require('./plugins/discuz/attachment.js');
 
 //Load jQuery source code to string.
 var jQuerySrc = fs.readFileSync(path.join(__dirname, 'jquery/jquery-1.7.1.min.js')).toString();
 
-var working_root_path = config.crawlOptions.working_root_path;
-utilBox.preparePath(working_root_path);
+var ROOT_PATH = config.crawlOptions.working_root_path;
+utilBox.preparePath(ROOT_PATH);
 var requestOptions = config.requestOptions;
 
 var crawlQueue = require('./crawlQueue.js');
-var domCrawlQueue = crawlQueue(working_root_path, crawl);
+var domCrawlQueue = crawlQueue(ROOT_PATH, crawl);
 domCrawlQueue.loadQueue();
-
 
 var getFilePath = function (uriObj) {
   var baseName, uri = uriObj.uri;
   if (uriObj.type === "attachment") {
-    return attchments.getAttFilePath(uri);
+    return attachment.getAttFilePath(uri);
   }
 
   if (/(css)|(js)/.test(uriObj.type)) {
@@ -40,7 +39,7 @@ var getFilePath = function (uriObj) {
   if (/\/$/.test(baseName)) {
     baseName = path.join(baseName, 'index.html');
   }
-  return path.join(working_root_path, config.crawlOptions['host'], baseName);
+  return path.join(ROOT_PATH, config.crawlOptions['host'], baseName);
 };
 
 /**
@@ -61,7 +60,7 @@ function crawl(uriObj) {
     if (err) {
       uriObj.failedCount += 1;
       domCrawlQueue.fail(uriObj);
-    } else if (statusCode > 400) {
+    } else if (statusCode && statusCode > 400) {
       uriObj.failedCount = config.crawlOptions.maxRetryCount;
       domCrawlQueue.fail(uriObj);
     } else {
@@ -80,7 +79,7 @@ function crawl(uriObj) {
     request.get({uri:uri, encoding:null, jar:requestOptions.jar}, iconvCallback);
     function iconvCallback(err, response, body) {
       if (err) {
-        tailFunction(err, uriObj, response.statusCode);
+        tailFunction(err, uriObj);
       } else {
         console.assert(Buffer.isBuffer(body));
         //console.log('type of body is buffer', Buffer.isBuffer(body));
@@ -107,15 +106,20 @@ function crawl(uriObj) {
             //remove all scripts
             body = body.replace(/<script.*?>.*?<\/script>/ig, '');
 
-            //TODO(mxfli) memory leak here?
             require('jsdom').env({html:body, src:[jQuerySrc],
                                    done:function (err, window) {
+                                     body = null; //release memory
+
                                      if (err) {
+                                       window && window.close && window.close();
                                        tailFunction(err, uriObj);
                                        return;
                                      }
                                      //console.log('Parse HTML :', uri);
-                                     requestOptions.callback(window, window.$, tailFunction.bind(null, null, uriObj), requestOptions['updateFlag']);
+                                     requestOptions.callback(window, window.$, function () {
+                                       window.close();//Call window.close(); for memory leak.
+                                       tailFunction(null, uriObj);
+                                     }, requestOptions['updateFlag']);
                                    }});
 
           }
@@ -161,7 +165,7 @@ var crawler = function crawler() {
     //if (link in processingStack) {return false;}
 
     //attachment exists exit
-    if (uri.type === 'attachment' && attchments.exists(link)) {
+    if (uri.type === 'attachment' && attachment.exists(link)) {
       //console.log('Skip attachment', link);
       return false;
     } else {
