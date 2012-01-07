@@ -10,6 +10,7 @@ var fs = require('fs');
 var URL = require('url');
 var path = require('path');
 var Iconv = require('iconv').Iconv;
+var iconvLite = require('iconv-lite');
 var utilBox = require('./utilbox.js');
 //TODO(Inaction) use attachement as discuz plugin.
 var attachment = require('./plugins/discuz/attachment.js');
@@ -82,14 +83,27 @@ function crawl(uriObj) {
         tailFunction(err, uriObj);
       } else {
         console.assert(Buffer.isBuffer(body));
+
         //console.log('type of body is buffer', Buffer.isBuffer(body));
-        if (/(gbk)$/i.test(response.headers['content-type'])) {
+        if (config.crawlOptions.inputEncoding !== 'utf8') { // /(gbk)$/i.test(response.headers['content-type'])) {
           try {
-            body = new Iconv('GBK', "UTF-8").convert(body).toString()
-                .replace("text\/html; charset=gbk", "text\/html; charset=utf-8");
+            body = new Iconv(config.crawlOptions.inputEncoding, "UTF-8").convert(body).toString()
           } catch (e) {
-            tailFunction(e, uriObj);
+            //这个可以正常转换但是有的字符不能通过，编码的数量少，不全；
+            if (['gbk', 'gb2312'].indexOf(config.crawlOptions.inputEncoding.toLowerCase())) {
+              body = iconvLite.fromEncoding(body, config.crawlOptions.inputEncoding);
+            } else {
+              tailFunction(err, uriObj);
+            }
+          } finally {
+            if (Buffer.isBuffer(body)) {
+              tailFunction(new Error("Unsupported encoding:" + config.crawlOptions.inputEncoding), uriObj);
+            } else {
+              body = body.replace(new RegExp("text\/html;.*charset=" + config.crawlOptions.inputEncoding, 'i'), "text\/html; charset=utf-8");
+            }
           }
+        } else {
+          body = body.toString('utf8');
         }
         fs.writeFile(filePath, body
           //TODO(Inaction) replace absolute path to relative path.
@@ -125,7 +139,9 @@ function crawl(uriObj) {
           }
         });
       }
-    };
+    }
+
+    ;
   }
 }
 

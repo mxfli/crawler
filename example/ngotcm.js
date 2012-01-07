@@ -11,6 +11,7 @@ require('../config/config.js');
 
 config.crawlOptions.working_root_path = __dirname + '/qicai';
 config.crawlOptions.maxConnections = 5;
+config.crawlOptions.inputEncoding = 'GBK';
 
 var domCrawler = require('../domCrawler.js');
 var cookieAgent = require('../../node-cookies.txt/index.js');

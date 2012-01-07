@@ -22,7 +22,8 @@ config.crawlOptions = {
   savePoint:50, //save data every 50 rui finished.
   recursive:true,
   updateFlag:true,
-  working_root_path: '/tmp/crawler'
+  working_root_path:'/tmp/crawler',
+  inputEncoding:'utf8'
 };
 
 //Default client http request options
