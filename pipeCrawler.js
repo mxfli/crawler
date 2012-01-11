@@ -5,10 +5,7 @@
  * Description:
  *      Description of pipeCrawler.js
  */
-var pipeCrawler = function () {
-  var that = {};
-  that.crawl = function () {};
-  return that;
-}();
+var request = require('request.pipe');
 
-module.exports = pipeCrawler;
+var pipeCrawler = exports;
+

@@ -7,6 +7,7 @@
  */
 
 require("../config/config.js");
+throw new Error('Please run ngotc.js');
 
 var ctp = require('../../node-cookies.txt/index.js');
 var crawler = require("../domCrawler.js");

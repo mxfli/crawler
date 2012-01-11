@@ -1,7 +1,0 @@
-szhbbs.mxfli.com	FALSE	/	FALSE	1326369411	iRey_2132_lastvisit	1323773811
-szhbbs.mxfli.com	FALSE	/	FALSE	1326874230	iRey_2132_auth	0c1b2A21dfY%2BSkOlCis9dBGa1Y1RWG%2B0LsjMlmyEKhiCDETzx%2B2WMoeqfK04GvW3UvqYB5MMQCd1QSFkb1Kx
-szhbbs.mxfli.com	FALSE	/	FALSE	1355818230	iRey_2132_ulastactivity	cbb7WwuOuDIl93eRWb4xHIbFiqK3I4d2vKj%2B3J2Sg3vZK%2FWy7KcX
-szhbbs.mxfli.com	FALSE	/	FALSE	1324369405	iRey_2132_sid	U5V7cI
-szhbbs.mxfli.com	FALSE	/	FALSE	1324283306	iRey_2132_sendmail	1
-szhbbs.mxfli.com	FALSE	/	FALSE	1324369406	iRey_2132_lastact	1324283006%09home.php%09spacecp
-szhbbs.mxfli.com	FALSE	/	FALSE	1324283036	iRey_2132_checkpm	1

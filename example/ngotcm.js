@@ -14,7 +14,7 @@ config.crawlOptions.maxConnections = 5;
 config.crawlOptions.inputEncoding = 'GBK';
 
 var domCrawler = require('../domCrawler.js');
-var cookieAgent = require('../../node-cookies.txt/index.js');
+var cookieAgent = require('cookies.js');
 var qicaiThreadParser = function (window, $, callback) {
   //console.log('parse thread', window.location);
   $('a[href]').each(function (index, link) {
@@ -24,7 +24,7 @@ var qicaiThreadParser = function (window, $, callback) {
       domCrawler.push({uri:link.href, type:'link'});
     }
   });
-  callback && callback.call();
+  callback && callback();
 };
 
 config.crawlOptions.recursive = false;

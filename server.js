@@ -51,6 +51,7 @@ connect(
       }
       next();
     },
+    //Some codes from JacksonTian's ping module.(https://github.com/JacksonTian/ping)
     function (request, response, next) {//static server
       if (request.filePath) {
         fs.stat(request.filePath, function (err, stats) {

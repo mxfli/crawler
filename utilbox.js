@@ -8,7 +8,7 @@
 
 var path = require('path');
 var fs = require('fs');
-var util = require('util');
+
 var url = require('url');
 
 var utilBox = module.exports = {};
@@ -60,6 +60,11 @@ utilBox.isURL = function (url) {
   return /^https?:/.test(url || '');
 };
 
+/**
+ * Copy source properties to target, warn: will over write exists propterties in target.
+ * @param target
+ * @param source
+ */
 utilBox.copyProperites = function (target, source) {
   Object.keys(source).forEach(function (key) {
     target[key] = source[key];

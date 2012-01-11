@@ -7,11 +7,11 @@
  */
 
 var config = {
-  appName:'SmartCrawler',
+  appName:'0Crawler',
   version:'0.0.3 alpha',
   port:'1231', //the date of nocancer.com will be shutting down.
   databaseName:'nocancer',
-  appDomain:'nocancer.inaction.me', //网站绑定的域名？也可以不用绑定，这个是灵活的，取决于在什么地址部署
+  appDomain:'localhost', //网站绑定的域名？也可以不用绑定，这个是灵活的，取决于在什么地址部署
   maxMemoryUsage:500
 };
 
