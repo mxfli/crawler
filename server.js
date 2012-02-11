@@ -11,7 +11,7 @@ require('./config/config.js');
 var connect = require('connect');
 var fs = require('fs');
 var path = require('path');
-var att = require('plugins/attachment.js');
+var att = require('./plugins/discuz/attachment.js');
 var utils = require('./utilbox.js');
 var zlib = require("zlib");
 
@@ -24,7 +24,7 @@ connect(
     function (req, res, next) { //attachements
       if (/^\/forum.php\?mod=attachment&aid/.test(req.url)) {
         var url = 'http://www.nocancer.com.cn' + req.url;
-        var filePath = att.getAttFilePath(url);
+        var filePath = att.getAttFilePath(__dirname, url);
         req.filePath = filePath;
         //call next();
 //        res.setHeader('Accept-Ranges', 'bytes');

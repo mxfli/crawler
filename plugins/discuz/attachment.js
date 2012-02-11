@@ -35,7 +35,7 @@ var isAttach = function (uriObj) {
   return (query.mod && query.mod === 'attachment' && query.aid);
 };
 
-var attachmentFilePath = function (uriObj) {
+var attachmentFilePath = function (basedir, uriObj) {
   //path name = __dirname/hostname/attachment/tid/uid-paramnames-n
   var realIdArray = decode(uriObj.query.aid).split('|');
   var filename = Object.keys(uriObj.query).reduce(function (pre, current, index) {
@@ -45,7 +45,7 @@ var attachmentFilePath = function (uriObj) {
     }
     return pre;
   }, [realIdArray.shift()]);
-  return path.join(__dirname, uriObj.hostname, 'attachment', realIdArray.pop(), filename.join('-'));
+  return path.join(basedir || __dirname, uriObj.hostname, 'attachment', realIdArray.pop(), filename.join('-'));
 };
 
 
@@ -116,9 +116,9 @@ var cleanAttFiles = function () {
   });
 };
 
-module.exports.getAttFilePath = function (uri) {
+module.exports.getAttFilePath = function (dir, uri) {
   var urlObj = url.parse(uri, true);
-  return attachmentFilePath(urlObj);
+  return attachmentFilePath(dir, urlObj);
 };
 
 module.exports.exists = function (uri) {
