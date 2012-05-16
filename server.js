@@ -36,6 +36,13 @@ webserver.use(function (req, res, next) {
   next();
 });
 
+webserver.use(function (req, res, next) {
+  "use strict";
+  if (req.url === '/archiver/') {
+    req.filePath = path.join(__dirname, 'www.nocancer.com.cn', 'archiver/index.html');
+  }
+  next();
+});
 //formdisplay
 webserver.use(function (req, res, next) {
   // /forum.php?mod=forumdisplay&fid=16&page=1

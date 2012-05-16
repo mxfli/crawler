@@ -13,7 +13,7 @@ server{
   #       auth_basic            "Restricted";
   #       auth_basic_user_file  conf/htpasswd;
   #}
-  location ~ ^/archiver/.+ {
+  location ~ ^/archiver/?.+ {
     tcp_nodelay on;
     proxy_set_header Host $host;
     proxy_set_header X-Real-IP $remote_addr;
