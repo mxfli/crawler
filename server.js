@@ -38,6 +38,16 @@ webserver.use(function (req, res, next) {
 
 webserver.use(function (req, res, next) {
   "use strict";
+  if (req.url === '/connect.php?mod=check&op=cookie') {
+    res.setHeader('content-type', 'text/plain');
+    res.end('true');
+  } else {
+    next();
+  }
+});
+
+webserver.use(function (req, res, next) {
+  "use strict";
   if (req.url === '/archiver/') {
     req.filePath = path.join(__dirname, 'www.nocancer.com.cn', 'archiver/index.html');
   }

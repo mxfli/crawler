@@ -38,13 +38,16 @@ var isAttach = function (uriObj) {
 var attachmentFilePath = function (basedir, uriObj) {
   //path name = __dirname/hostname/attachment/tid/uid-paramnames-n
   var realIdArray = decode(uriObj.query.aid).split('|');
+
   var filename = Object.keys(uriObj.query).reduce(function (pre, current, index) {
     //console.log(index, 'pre:', pre, 'current:', current);
+    //Add other param to filenameArray
     if (!/(mod|aid)/i.test(current)) {
       pre.push(current);
     }
     return pre;
   }, [realIdArray.shift()]);
+
   return path.join(basedir || __dirname, uriObj.hostname, 'attachment', realIdArray.pop(), filename.join('-'));
 };
 
