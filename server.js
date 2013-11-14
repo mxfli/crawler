@@ -37,6 +37,10 @@ webServer.use(function (req, res, next) {
   if (/^\/forum.php\?mod=attachment&aid/.test(req.url)) {
     var url = 'http://www.nocancer.com.cn' + req.url;
     var filePath = att.getAttFilePath(__dirname, url);
+
+    //attachment/id-noupdate-nothumb files was removed.
+    filePath = filePath.replace('noupdate-nothumb', 'nothumb');
+
     req.filePath = filePath;
     //call next();
     //res.setHeader('Accept-Ranges', 'bytes');
@@ -90,7 +94,7 @@ webServer.use(function (req, res, next) {//ucenter avatar images
   if (/^\/ucenter/.test(req.url)) {
     res.setHeader("Content-Type", "image/jpg");
     //console.log('Read file:', filePath);
-    req.filePath = path.join(__dirname, '/www.nocancer.com.cn/', req.url);
+    req.filePath = path.join(__dirname, archivePath, req.url);
   }
   next();
 });
@@ -103,7 +107,7 @@ webServer.use(function (req, res, next) {
       /group\.php?gid=/.test(req.url) ||
       /^\/archiver\/\?/.test(req.url)) {
     res.setHeader("Content-Type", 'text/html; charset="utf-8"');
-    req.filePath = path.join(__dirname, '/www.nocancer.com.cn/', req.url);
+    req.filePath = path.join(__dirname, archivePath, req.url);
   }
   next();
 });
