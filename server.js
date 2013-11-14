@@ -37,6 +37,10 @@ webServer.use(function (req, res, next) {
   if (/^\/forum.php\?mod=attachment&aid/.test(req.url)) {
     var url = 'http://www.nocancer.com.cn' + req.url;
     var filePath = att.getAttFilePath(__dirname, url);
+
+    //attachment/id-noupdate-nothumb files was removed.
+    filePath = filePath.replace('noupdate-nothumb', 'nothumb');
+
     req.filePath = filePath;
     //call next();
     //res.setHeader('Accept-Ranges', 'bytes');
