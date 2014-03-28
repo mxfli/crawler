@@ -12,7 +12,7 @@ console.log('Set process name :', config.appName);
 
 process.title = config.appName;
 
-var ctp = require('cookies.txt/index.js');
+var ctp = require('cookies.txt');
 var crawler = require("./SmartCrawler.js");
 var discuzX2Plugin = require('./plugins/discuz/discuzX2.js');
 
@@ -20,7 +20,7 @@ var discuzX2Plugin = require('./plugins/discuz/discuzX2.js');
 ctp.parse(__dirname + '/config/cookies.txt', function (cookies) {
 
   //Init crawler with options.
-  crawler.init({jar:ctp, callback:discuzX2Plugin, update:true, updateFlag:1231});
+  crawler.init({jar: ctp, callback: discuzX2Plugin, update: true, updateFlag: 1231});
 
   //Crawl the url
   crawler.crawl('http://www.nocancer.com.cn/forum.php');

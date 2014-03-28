@@ -1,5 +1,6 @@
-#crawler about
-This is a site crawler for clone Discuz Forums.
+#crawler
+ A node.js crawler support custom plugin to implement special crawl rules.
+ Implement plugin example for crawl discus2x.
 
 ###Finished List
 *   递归抓站 + 指定规则的地址抓取和指定资源的下载；
@@ -36,7 +37,6 @@ This is a site crawler for clone Discuz Forums.
 *   CP：显示监控情况；暂停和启动crawler；失败列表/重试；调整参数/配置文件；
 *   Bug收集：帖子主题显示错误/图片不能下载或不存在/空间不存在/
 *   Update mode:重新下载某人的空间/重新抓取某主题这样可以不需要自动识别更新，自动识别的话采用最后一页或者URL识别，打标记。
-
 
 ##RequiredModules
 *   request

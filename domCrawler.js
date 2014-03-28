@@ -1,9 +1,9 @@
 /**
- * FileName: SmartCrawler.js
+ * FileName: domCrawler.js copy from SmartCrawler.js
  * Author: @mxfli
  * CreateTime: 2011-12-09 23:51
  * Description:
- *     Smart crawler of using rquest.pipe
+ *     The crawler use jsdom
  */
 var request = require('request');
 var fs = require('fs');
@@ -71,13 +71,13 @@ function crawl(uriObj) {
 
   if (uriObj.type !== "link") {
     //console.log('Pipe download:', uri);
-    request.get({uri:uri, jar:requestOptions.jar},
-                function (err, response) {
-                  tailFunction(err, uriObj, response && response.statusCode || 500);
-                }).pipe(fs.createWriteStream(filePath));
+    request.get({uri: uri, jar: requestOptions.jar},
+        function (err, response) {
+          tailFunction(err, uriObj, response && response.statusCode || 500);
+        }).pipe(fs.createWriteStream(filePath));
 
   } else {
-    request.get({uri:uri, encoding:null, jar:requestOptions.jar}, iconvCallback);
+    request.get({uri: uri, encoding: null, jar: requestOptions.jar}, iconvCallback);
     function iconvCallback(err, response, body) {
       if (err) {
         tailFunction(err, uriObj);
@@ -120,22 +120,24 @@ function crawl(uriObj) {
             //remove all scripts
             body = body.replace(/<script.*?>.*?<\/script>/ig, '');
 
-            require('jsdom').env({html:body, src:[jQuerySrc],
-                                   done:function (err, window) {
-                                     body = null; //release memory
+            require('jsdom').env(
+                {html: body, src: [jQuerySrc],
+                  done: function (err, window) {
+                    body = null; //release memory
 
-                                     if (err) {
-                                       window && window.close && window.close();
-                                       tailFunction(err, uriObj);
-                                       return;
-                                     }
-                                     //console.log('Parse HTML :', uri);
-                                     requestOptions.callback(window, window.$, function () {
-                                       window.close();//Call window.close(); for memory leak.
-                                       tailFunction(null, uriObj);
-                                     }, requestOptions['updateFlag']);
-                                   }});
-
+                    if (err) {
+                      window && window.close && window.close();
+                      tailFunction(err, uriObj);
+                      return;
+                    }
+                    //console.log('Parse HTML :', uri);
+                    requestOptions.callback(window, window.$, function () {
+                      window.close();//Call window.close(); for memory leak.
+                      tailFunction(null, uriObj);
+                    }, requestOptions['updateFlag']);
+                  }
+                }
+            );
           }
         });
       }
@@ -150,7 +152,7 @@ var crawler = function crawler() {
   //TODO(Inaction) add crawl all mode;update all mode;last update mode.
 
   that.push = function (url) {
-    var uri = {type:'link'};
+    var uri = {type: 'link'};
     if (typeof url === 'string') {
       uri.uri = url;
       uri.failedCount = 0;
@@ -167,7 +169,9 @@ var crawler = function crawler() {
       uri.uri = link = 'http://' + config.crawlOptions['host'] + '/' + link;
     }
 
-    if (!utilBox.isURL(link)) {return false;} //is not url exit
+    if (!utilBox.isURL(link)) {
+      return false;
+    } //is not url exit
 
     //51.la exit TODO(Inaction) remove hadcode here: use url.parse(url).port/hostname
     //var isExcludedLink = /(51\.la)|(bbs\.jhnews\.com\.cn)|(nocancer\.com\.cn:8080\/)/.test(link);
@@ -208,7 +212,7 @@ var crawler = function crawler() {
     config.crawlOptions['host'] = url.hostname;
     console.log('Add domain for base uri:', config.crawlOptions['host']);
 
-    that.push({uri:baseURI, type:'link', failedCount:0 });
+    that.push({uri: baseURI, type: 'link', failedCount: 0 });
     domCrawlQueue.dumpQueue();
   };
 

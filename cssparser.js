@@ -31,12 +31,16 @@ console.log('CSS dir:', cssDir);
 
 var cssPath = '/data/cache';
 fs.readdir(cssDir, function (err, cssFiles) {
-  if (err) {throw err;}
+  if (err) {
+    throw err;
+  }
   console.log('CSS files:', cssFiles);
   cssFiles.forEach(function (cssFile) {
     console.log('Read CSS:', cssFile);
     fs.readFile(path.join(cssDir, cssFile), function (err, cssBuffer) {
-      if (err) {throw err;}
+      if (err) {
+        throw err;
+      }
       var cssStr = cssBuffer.toString('ascii');
       console.log("CSS", cssFile, 'loaded.');
       var urls = parseCSSUri(cssStr);
@@ -44,7 +48,7 @@ fs.readdir(cssDir, function (err, cssFiles) {
       urls && urls.forEach(function (uri, index) {
         var imgPath = path.join(cssPath, uri.replace('url(', '').replace(')', ''));
         var imgUri = baseURI + imgPath;
-        crawler.push({uri:imgUri, type:'img'});
+        crawler.push({uri: imgUri, type: 'img'});
         console.log('[' + index + ']', imgPath);
       });
     });

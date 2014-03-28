@@ -9,7 +9,7 @@
 require("../config/config.js");
 throw new Error('Please run ngotc.js');
 
-var ctp = require('../../node-cookies.txt/index.js');
+var ctp = require('cookies.txt');
 var crawler = require("../domCrawler.js");
 var discuzX2Plugin = require('../plugins/discuz/discuzX2.js');
 

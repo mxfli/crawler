@@ -44,7 +44,9 @@ var loadQueue = function () {
   failedStack = loadJson(failedDumFile, {});
   var _processingStack = loadJson(processDumFile, {});
   //将上次正在处理的uri加载到队列的开始。
-  Object.keys(_processingStack).forEach(function (uri) {queue.unshift(_processingStack[uri])});
+  Object.keys(_processingStack).forEach(function (uri) {
+    queue.unshift(_processingStack[uri])
+  });
   //Object.keys(failedStack).forEach(function (uri) {queue.unshift(failedStack[uri])});
 };
 
@@ -114,9 +116,9 @@ var getFilePath = function (uriObj) {
 
 function queueInfo() {
   console.log('Queue:', queue.length,
-              '; processing:', Object.keys(processingStack).length,
-              '; Finished:', Object.keys(finishedStack).length,
-              '; Failed:', Object.keys(failedStack).length);
+      '; processing:', Object.keys(processingStack).length,
+      '; Finished:', Object.keys(finishedStack).length,
+      '; Failed:', Object.keys(failedStack).length);
 }
 /**
  * Start the crawling the URIs in queue array.
@@ -128,7 +130,9 @@ function crawl() {
     return;
   }
 
-  if (processingSize < config.crawlOptions.maxConnections) {process.nextTick(crawl);}
+  if (processingSize < config.crawlOptions.maxConnections) {
+    process.nextTick(crawl);
+  }
 
   var uriObj = queue.shift();
   var uri = uriObj['uri'];
@@ -149,7 +153,7 @@ function crawl() {
 
   if (uriObj.type !== "link") {
     //console.log('Pipe download:', uri);
-    requestPipe.get({uri:uri, jar:requestOptions.jar}, pipeCallback).pipe(fs.createWriteStream(filePath));
+    requestPipe.get({uri: uri, jar: requestOptions.jar}, pipeCallback).pipe(fs.createWriteStream(filePath));
 
     function pipeCallback(err) {
       console.log('Crawled', err ? 'ERROR :' : ':', uri);
@@ -164,7 +168,7 @@ function crawl() {
       process.nextTick(crawl);
     }
   } else {
-    requestIconv({uri:uri, headers:{"User-Agent":'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7'}, jar:requestOptions.jar}, iconvCallback);
+    requestIconv({uri: uri, headers: {"User-Agent": 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7'}, jar: requestOptions.jar}, iconvCallback);
     function iconvCallback(err, response, body) {
       if (err) {
         tailFunction(err);
@@ -186,16 +190,18 @@ function crawl() {
             body = body.replace(/<script.*?>.*?<\/script>/ig, '');
 
             //TODO(mxfli) memory leak here?
-            require('jsdom').env({html:body, src:[jQuerySrc],
-                                   done:function (err, window) {
-                                     if (err) {
-                                       tailFunction(err);
-                                       return;
-                                     }
-                                     //console.log('Parse HTML :', uri);
-                                     requestOptions.callback(window, window.$, tailFunction,requestOptions['updateFlag']);
-                                   }});
-
+            require('jsdom').env(
+                {html: body, src: [jQuerySrc],
+                  done: function (err, window) {
+                    if (err) {
+                      tailFunction(err);
+                      return;
+                    }
+                    //console.log('Parse HTML :', uri);
+                    requestOptions.callback(window, window.$, tailFunction, requestOptions['updateFlag']);
+                  }
+                }
+            );
           }
         });
       }
@@ -243,7 +249,7 @@ var crawler = function crawler() {
   var that = {};
 
   that.push = function (url) {
-    var uri = {type:'link'};
+    var uri = {type: 'link'};
     if (typeof url === 'string') {
       uri.uri = url;
       uri.failedCount = 0;
@@ -260,21 +266,33 @@ var crawler = function crawler() {
       uri.uri = link = 'http://' + config.crawlOptions['host'] + '/' + link;
     }
 
-    if (!isURL(link)) {return false;} //is not url exit
+    if (!isURL(link)) {
+      return false;
+    } //is not url exit
 
     //51.la exit
     var isExcludedLink = /(51\.la)|(bbs\.jhnews\.com\.cn)|(nocancer\.com\.cn:8080\/)/.test(link);
-    if (isExcludedLink) {return false;}
+    if (isExcludedLink) {
+      return false;
+    }
 
     // in queue exit
-    var isInQueue = queue.some(function (e) {return e.uri === link });
-    if (isInQueue) {return false;}
+    var isInQueue = queue.some(function (e) {
+      return e.uri === link
+    });
+    if (isInQueue) {
+      return false;
+    }
 
     // exit
     var isMaxFiled = (link in failedStack) && failedStack[link].failedCount > config.crawlOptions.maxRetryCount;
-    if (isMaxFiled) {return false;}
+    if (isMaxFiled) {
+      return false;
+    }
 
-    if (link in processingStack) {return false;}
+    if (link in processingStack) {
+      return false;
+    }
 
     //attachment exists exit
     if (uri.type === 'attachment' && attchments.exists(link)) {
@@ -285,9 +303,13 @@ var crawler = function crawler() {
     }
 
     if (uri.type === 'link') {
-      if (!isNeedUpdate(link)) {return false;}
+      if (!isNeedUpdate(link)) {
+        return false;
+      }
     } else if (uri.type !== 'attachment') {
-      if (link in finishedStack) {return false;}
+      if (link in finishedStack) {
+        return false;
+      }
     }
     queue.push(uri);
     return true;
@@ -321,7 +343,7 @@ var crawler = function crawler() {
     }
 
 
-    that.push({uri:baseURI, type:'link', failedCount:0 });
+    that.push({uri: baseURI, type: 'link', failedCount: 0 });
     process.nextTick(crawl);
     dumpQueue();
   };

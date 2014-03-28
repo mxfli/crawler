@@ -2,21 +2,22 @@ var fs = require('fs');
 var path = require('path');
 
 var crawlQueue = function (baseDir, crawl) {
-  var queue = {queue:[], processingStack:{}, finishedStack:{}, failedStack:{}};
+  var queue = {queue: [], processingStack: {}, finishedStack: {}, failedStack: {}};
   var that = {};
   //var files = {queue:[]};
   var dataFiles = {
-    finishedDumFile:path.join(baseDir, 'finished.json'),
-    failedDumFile:path.join(baseDir, 'failed.json'),
-    processDumFile:path.join(baseDir, 'process.json'),
-    queueDumFile:path.join(baseDir, 'queue.json')
+    finishedDumFile: path.join(baseDir, 'finished.json'),
+    failedDumFile: path.join(baseDir, 'failed.json'),
+    processDumFile: path.join(baseDir, 'process.json'),
+    queueDumFile: path.join(baseDir, 'queue.json')
   };
 
   function queueInfo() {
-    console.log('Queue:', queue.queue.length,
-                '; processing:', Object.keys(queue.processingStack).length,
-                '; Finished:', Object.keys(queue.finishedStack).length,
-                '; Failed:', Object.keys(queue.failedStack).length);
+    console.log(
+        'Queue:', queue.queue.length,
+        '; processing:', Object.keys(queue.processingStack).length,
+        '; Finished:', Object.keys(queue.finishedStack).length,
+        '; Failed:', Object.keys(queue.failedStack).length);
   }
 
   /**
@@ -37,7 +38,9 @@ var crawlQueue = function (baseDir, crawl) {
     queue.failedStack = loadJson(dataFiles.failedDumFile, {});
     var _processingStack = loadJson(dataFiles.processDumFile, {});
     //将上次正在处理的uri加载到队列的开始。
-    Object.keys(_processingStack).forEach(function (uri) {queue.queue.unshift(_processingStack[uri])});
+    Object.keys(_processingStack).forEach(function (uri) {
+      queue.queue.unshift(_processingStack[uri])
+    });
     //Object.keys(failedStack).forEach(function (uri) {queue.unshift(failedStack[uri])});
   };
 
@@ -107,19 +110,29 @@ var crawlQueue = function (baseDir, crawl) {
 
     // exit
     var isMaxFiled = (link in queue.failedStack) && queue.failedStack[link].failedCount > config.crawlOptions.maxRetryCount;
-    if (isMaxFiled) {return;}
+    if (isMaxFiled) {
+      return;
+    }
 
-    if (!isNeedUpdate(uriObj)) {return;}
+    if (!isNeedUpdate(uriObj)) {
+      return;
+    }
 
-    if (uriObj.uri in queue.processingStack) {return;}
-    if (!queue.queue.some(function (e) {return e.uri === link;})) {
+    if (uriObj.uri in queue.processingStack) {
+      return;
+    }
+    if (!queue.queue.some(function (e) {
+      return e.uri === link;
+    })) {
       queue.queue.push(uriObj);
     }
   };
 
   that.finish = function (uriObj) {
     delete queue.processingStack[uriObj.uri];
-    if (uriObj.type !== 'attachment') {queue.finishedStack[uriObj.uri] = config.crawlOptions.updateFlag;}
+    if (uriObj.type !== 'attachment') {
+      queue.finishedStack[uriObj.uri] = config.crawlOptions.updateFlag;
+    }
   };
 
   that.fail = function (uriObj) {
