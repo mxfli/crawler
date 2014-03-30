@@ -8,29 +8,20 @@
     "test": "test"
   },
   "dependencies": {
-    "connect": "~1.0.1",
     "cookies.txt": "~0.1.0",
     "iconv-lite": "*",
-    "iconv": "*",
-    "request-iconv": "~0.1.0",
     "request": "~2.x",
-    "jquery":">1.7.0",
+    "jquery": ">1.7.0",
     "jsdom": "~0.2.10"
   },
-  "devDependencies": {
-    "mocha": "*",
-    "should":"*"
-  },
-  "scripts": {
-    "test": "make test",
-    "start": "node server.js"
-  },
+  "devDependencies": { },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git://github.com/mxfli/crawler.git"
   },
   "keywords": [
-    "crawler"
+    "crawler", "crawl", "spidder"
   ],
   "author": "Inaction",
   "license": "MIT",
