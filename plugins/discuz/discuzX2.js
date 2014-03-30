@@ -1,4 +1,4 @@
-var crawler = require('../../domCrawler.js');
+var crawler = require('../../lib/domCrawler.js');
 
 /**
  * 具体执行扒站的分析代码，原则上只取有效的代码
@@ -24,8 +24,8 @@ module.exports = function (window, $, callback, flag) {
 
 //pipe images
   parse('img[file^="forum.php?mod=attachment"]', "images", function (img) {
-    crawler.push({uri:"http://www.nocancer.com.cn/" + img.getAttribute('file'), type:'attachment'});
-    crawler.push({uri:"http://www.nocancer.com.cn/" + img.getAttribute('zoomfile'), type:'attachment'});
+    crawler.push({uri: "http://" + config.requestOptions.host + "/" + img.getAttribute('file'), type: 'attachment'});
+    crawler.push({uri: "http://" + config.requestOptions.host + "/" + img.getAttribute('zoomfile'), type: 'attachment'});
   });
 
   //pipe attachments and not need JB
@@ -33,20 +33,20 @@ module.exports = function (window, $, callback, flag) {
     var needJB = $('#' + (attachment.parentNode.id || attachment.id) + '_menu').text().indexOf('金币') > 0;
     if (!needJB) {
       //console.log('attachment:', attachment.href, $('#' + $(attachment).parent().id + '_menu').text());
-      crawler.push({uri:attachment.href, type:'attachment'});
+      crawler.push({uri: attachment.href, type: 'attachment'});
     }
   });
 
   parse('img', 'image', function (link) {
-    crawler.push({uri:link.src, type:'img'});
+    crawler.push({uri: link.src, type: 'img'});
   });
 
   parse('link[rel="stylesheet"]', 'css', function (link) {
-    crawler.push({uri:link.href, type:'css'});
+    crawler.push({uri: link.href, type: 'css'});
   });
 
   parse('sscript[src^="static/"]', 'js', function (link) {
-    crawler.push({uri:$(link).attr('src'), type:'js'});
+    crawler.push({uri: $(link).attr('src'), type: 'js'});
   });
 
 
@@ -55,13 +55,13 @@ module.exports = function (window, $, callback, flag) {
     if (flag % 2 === 0) {
       parse('a[href$=".html"][href^="forum"]', 'forum', function (link) {
         if (link.href.indexOf("nocancer.com.cn") > -1) {
-          crawler.push({uri:link.href, type:'link'});
+          crawler.push({uri: link.href, type: 'link'});
         }
       });
     } else {
       parse('a[href$=".html"][href^="thread"]', 'thread', function (link) {
         if (link.href.indexOf("nocancer.com.cn") > -1) {
-          crawler.push({uri:link.href, type:'link'});
+          crawler.push({uri: link.href, type: 'link'});
         }
       });
     }
@@ -70,14 +70,14 @@ module.exports = function (window, $, callback, flag) {
     //archive links
     parse('a[href^="archiver/"],a[href^="?tid-"]', 'Archive', function (a) {
       if (a.href.indexOf("nocancer.com.cn") > -1) {
-        crawler.push({uri:a.href, type:'link'});
+        crawler.push({uri: a.href, type: 'link'});
       }
     });
 
     //forum links
     parse('a[href^="forum.php?gid="] ', 'forum', function (a) {
       if (a.href.indexOf("nocancer.com.cn") > -1) {
-        crawler.push({uri:a.href, type:'link'});
+        crawler.push({uri: a.href, type: 'link'});
       }
     });
 
@@ -85,20 +85,20 @@ module.exports = function (window, $, callback, flag) {
       //console.log('group:', link.href);
       if (/\.php$/.test(link.href)) {
         //console.log('push:', link.href, crawler.push({uri:link.href, type:'link'}));
-        crawler.push({uri:link.href, type:'link'});
+        crawler.push({uri: link.href, type: 'link'});
       }
     });
 
     parse('a[href^="group.php?gid="]', 'group', function (link) {
       //console.log('group:', link.href);
       if (/group\.php\?gid=\(d{1,3}$/.test(link.href)) {
-        crawler.push({uri:link.href, type:'link'});
+        crawler.push({uri: link.href, type: 'link'});
       }
     });
 
     parse('a[href^="home.php?mod=space&uid="]', 'space', function (link) {
       if (/home\.php\?mod=space&uid=\d{1,6}$/.test(link.href)) {
-        crawler.push({uri:link.href, type:'link'});
+        crawler.push({uri: link.href, type: 'link'});
       }
     });
   }

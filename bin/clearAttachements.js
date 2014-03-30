@@ -3,7 +3,7 @@
  * Author: @mxfli
  * CreateTime: 2011-12-30 23:31
  * Description:
- *      Description of clearAttachements.js
+ *    Clean discuZX2 attachments, vps no discspace error.
  */
 var discuzAttachment = require('plugins/attachment.js');
 

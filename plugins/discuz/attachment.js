@@ -22,7 +22,7 @@
 var url = require('url');
 var path = require('path');
 var fs = require('fs');
-var utilBox = require('../../utilbox.js');
+var utilBox = require('../../lib/utilbox.js');
 
 var finishedStack = {};
 
@@ -68,8 +68,8 @@ var clearFishied = function (callback) {
         //console.log('[', count, '] :', filePath);
         var oldFile = path.join(__dirname, uriObj.hostname, uriObj.path);
 
-        if (path.existsSync(oldFile)) {
-          if (!path.existsSync(filePath)) {
+        if (fs.existsSync(oldFile)) {
+          if (!fs.existsSync(filePath)) {
             //console.log('[', count, ']', 'move oldfile :', oldFile, '\n     to newfile :', filePath);
             utilBox.preparePath(path.dirname(filePath));
             fs.renameSync(oldFile, filePath);
@@ -83,7 +83,9 @@ var clearFishied = function (callback) {
         delete finishedStack[uri];
       }
       //if (count === 10) {return true;}
-      if (count > 0 && count % 100 === 0) {console.log('processed : ', count, 'records.')}
+      if (count > 0 && count % 100 === 0) {
+        console.log('processed : ', count, 'records.')
+      }
     });
 
     console.log('all files count:', count);
@@ -96,16 +98,16 @@ var clearFishied = function (callback) {
 };
 
 var cleanAttFiles = function () {
-  fs.readdir(path.join(__dirname, 'www.nocancer.com.cn'), function (err, files) {
+  fs.readdir(path.join(__dirname, 'run', config.requestOptions.host), function (err, files) {
     if (err) throw err;
     var count = 0;
     files.forEach(function (file) {
-      var uriObj = url.parse('http://www.nocancer.com.cn/' + file, true);
+      var uriObj = url.parse('http://' + config.requestOptions.host + '/' + file, true);
       if (isAttach(uriObj)) {
         var filePath = attachmentFilePath(uriObj);
         //console.log('[', count, '] :', filePath);
         var oldFile = path.join(__dirname, uriObj.hostname, uriObj.path);
-        if (!path.existsSync(filePath)) {
+        if (!fs.existsSync(filePath)) {
           //console.log('[', count, ']', 'move oldfile :', oldFile, '\n     to newfile :', filePath);
           utilBox.preparePath(path.dirname(filePath));
           fs.renameSync(oldFile, filePath);
@@ -128,8 +130,8 @@ module.exports.exists = function (uri) {
   var uriObj = url.parse(uri, true);
   if (isAttach(uriObj)) {
     var filePath = attachmentFilePath(uriObj);
-    //console.log('filePath:', filePath, ' exist:', path.existsSync(filePath));
-    return path.existsSync(filePath);
+    //console.log('filePath:', filePath, ' exist:', fs.existsSync(filePath));
+    return fs.existsSync(filePath);
   } else {
     return false;
   }

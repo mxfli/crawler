@@ -1,6 +1,9 @@
+bin
 config
 example
-jquery
 run
+app.js
 test
 README_cn.md
+.gitignore
+.npmignore

@@ -2,3 +2,4 @@ node_modules/
 *.tgz
 www.nocancer.com.cn/
 run/
+*.local.js

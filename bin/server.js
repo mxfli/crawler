@@ -6,19 +6,19 @@
 
 "use strict";
 
-require('./config/config.js');
+require('./../config/config.js');
 
 var connect = require('connect');
 var fs = require('fs');
 var path = require('path');
-var att = require('./plugins/discuz/attachment.js');
-var utils = require('./utilbox.js');
+var att = require('./../plugins/discuz/attachment.js');
+var utils = require('./../lib/utilbox.js');
 var zlib = require("zlib");
 var qs = require('querystring');
 
 // global variables
 //下载网站所在的目录
-var archivePath = 'www.nocancer.com.cn';
+var archivePath = config.requestOptions.host;
 
 var webServer = connect()
     .use(connect.logger(':method :url - :res[content-type]', { buffer: 5000 }))
@@ -35,7 +35,7 @@ var webServer = connect()
 //attachments parse
 webServer.use(function (req, res, next) {
   if (/^\/forum.php\?mod=attachment&aid/.test(req.url)) {
-    var url = 'http://www.nocancer.com.cn' + req.url;
+    var url = 'http://' + config.requestOptions.host + req.url;
     var filePath = att.getAttFilePath(__dirname, url);
 
     //attachment/id-noupdate-nothumb files was removed.
@@ -187,7 +187,7 @@ webServer.use(function (req, res) {
       console.error('url 404:', req.url);
       res.statusCode = 404;
       res.setHeader('Content-Type', 'text/plain');
-      res.end('URI : "' + req.url + '" NOT crawled from www.nocancer.com.cn');
+      res.end('URI : "' + req.url + '" NOT crawled from ' + config.requestOptions.host);
     }
 );
 

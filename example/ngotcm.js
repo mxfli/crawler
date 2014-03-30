@@ -13,7 +13,7 @@ config.crawlOptions.working_root_path = __dirname + '/qicai';
 config.crawlOptions.maxConnections = 5;
 config.crawlOptions.inputEncoding = 'GBK';
 
-var domCrawler = require('../domCrawler.js');
+var domCrawler = require('../lib/domCrawler.js');
 var cookieAgent = require('cookies.js');
 var qicaiThreadParser = function (window, $, callback) {
   //console.log('parse thread', window.location);
