@@ -13,7 +13,7 @@ console.log('Set process name :', config.appName);
 process.title = config.appName;
 
 var crawler = require("./lib").domCrawler;
-var discuzX2Plugin = require('./plugins/discuz/discuzX2.js');
+var discuzX2Plugin = require('./lib/plugins/discuz/discuzX2.js');
 
 var requestOptions = config.requestOptions;
 if (requestOptions.cookie) {

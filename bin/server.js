@@ -11,7 +11,7 @@ require('./../config/config.js');
 var connect = require('connect');
 var fs = require('fs');
 var path = require('path');
-var att = require('./../plugins/discuz/attachment.js');
+var att = require('././discuz/attachment.js');
 var utils = require('./../lib/utilbox.js');
 var zlib = require("zlib");
 var qs = require('querystring');
