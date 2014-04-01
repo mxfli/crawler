@@ -30,6 +30,6 @@ var qicaiThreadParser = function (window, $, callback) {
 config.crawlOptions.recursive = false;
 
 cookieAgent.parse(__dirname + '/ngotcm_cookies.txt', function () {
-  domCrawler.init({jar:cookieAgent, callback:qicaiThreadParser, updateFlag:3});
+  domCrawler.init({jar:cookieAgent, resourceParser:qicaiThreadParser, updateFlag:3});
   domCrawler.crawl('http://www.ngotcm.com/forum/thread-50247-1-1.html');
 });

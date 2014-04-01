@@ -13,7 +13,7 @@ console.log('Set process name :', config.appName);
 process.title = config.appName;
 
 var crawler = require("./lib").domCrawler;
-var discuzX2Plugin = require('./lib/plugins/discuz/discuzX2.js');
+var discuzX2Plugin = require('./lib/plugins/discuz');
 
 var requestOptions = config.requestOptions;
 if (requestOptions.cookie) {
@@ -23,13 +23,14 @@ if (requestOptions.cookie) {
   cookies.parse(__dirname + '/config/cookies.txt', function () {
 
     //Init crawler with options.
-    crawler({jar: cookies, callback: discuzX2Plugin, update: true, updateFlag: 1231});
+    crawler({jar: cookies, update: true, updateFlag: 1231});
 
     //Crawl the url
     crawler.crawl(requestOptions.path);
+    crawler.push({uri:'http://www.ngotcm.com/forum/thread-50247-1552-1.html',type:'link'});
   });
 } else {
   //TODO updateFlag has a bug: if not seted ,first crawl will not bean started.
-  crawler.init({jar: false, callback: discuzX2Plugin, update: true, updateFlag: 1330});
+  crawler.init({jar: false, update: true, updateFlag: 1330});
   crawler.crawl(requestOptions.path);
 }

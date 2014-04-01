@@ -5,9 +5,10 @@
  * Description:
  *      Description of attachment-test.js
  */
-var att = require('./discuz/attachment.js');
+var att = require('../lib/plugins/discuz/attachment.js');
 
 var assert = require('assert');
-filePath = att.getAttFilePath('http://www.nocancer.com.cn/forum.php?mod=attachment&aid=MzMyOHw1YmNmMjU0ZnwxMzI1MjU4ODI3fDk5NXw5Nzg2');
+//filePath = att.getAttFilePath(__dirname,'http://www.nocancer.com.cn/forum.php?mod=attachment&aid=MzMyOHw1YmNmMjU0ZnwxMzI1MjU4ODI3fDk5NXw5Nzg2');
+filePath = att.getAttFilePath(__dirname,'http://www.nocancer.com.cn/forum.php?mod=attachment&aid=NTYyMDF8MWY0ZmIwY2J8MTM5NjM2MDYyNnwyMDcwODc');
 console.log(filePath);
 assert.ok(filePath);

@@ -8,11 +8,12 @@
     "test": "test"
   },
   "dependencies": {
-    "cookies.txt": "~0.1.0",
+    "cookies.txt": "*",
     "iconv-lite": "*",
-    "request": "~2.x",
-    "jquery": ">1.7.0",
-    "jsdom": "~0.2.10"
+    "request": "*",
+    "jquery": "*",
+    "charset": "*",
+    "jsdom": "*"
   },
   "devDependencies": { },
   "scripts": {},

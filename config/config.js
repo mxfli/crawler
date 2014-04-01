@@ -23,7 +23,8 @@ config.crawlOptions = {
   recursive: true,
   updateFlag: true,
   working_root_path: 'run/crawler',
-  inputEncoding: 'utf8'
+  inputEncoding: 'utf8',
+  resourceParser:require('../lib/plugins/default')
 };
 
 //Default client http request options
