@@ -7,29 +7,20 @@
  */
 
 require('../config/config.js');
-//Overide default options;
+var path = require('path');
 
-config.crawlOptions.working_root_path = __dirname + '/qicai';
-config.crawlOptions.maxConnections = 5;
-config.crawlOptions.inputEncoding = 'GBK';
+//Override configuration.
+config.crawlOptions.working_root_path = path.join(__dirname, '../run/qicai');
+config.crawlOptions.maxConnections = 1;
+config.crawlOptions.resourceParser = require('../lib/plugins/qicai');
 
-var domCrawler = require('../lib/domCrawler.js');
-var cookieAgent = require('cookies.js');
-var qicaiThreadParser = function (window, $, callback) {
-  //console.log('parse thread', window.location);
-  $('a[href]').each(function (index, link) {
-    //console.log('test url:', link.href);
-    if (/thread-50247-\d{1,6}-\d{1,6}\.html$/ig.test(link.href)) {
-      //console.log("Add url:", link.href, domCrawler.push({uri:link.href, type:'link'}));
-      domCrawler.push({uri:link.href, type:'link'});
-    }
-  });
-  callback && callback();
-};
+var domCrawler = require('../lib').domCrawler;
+
+var cookieAgent = require('cookies.txt');
 
 config.crawlOptions.recursive = false;
 
-cookieAgent.parse(__dirname + '/ngotcm_cookies.txt', function () {
-  domCrawler.init({jar:cookieAgent, resourceParser:qicaiThreadParser, updateFlag:3});
+cookieAgent.parse(__dirname + '/ngotcm_cookies.txt', function (jar) {
+  domCrawler.init({jar: jar, updateFlag: 4});
   domCrawler.crawl('http://www.ngotcm.com/forum/thread-50247-1-1.html');
 });

@@ -1,6 +1,6 @@
 # Cookies for domains related to ngotcm.com.
 # This content may be pasted into a cookies.txt file and used by wget
-# Example:  wget -x --load-cookies cookies.txt http://www.ngotcm.com/
+# Example:  wget -x --load-cookies cookies.txt http://www.ngotcm.com/forum/forum.php?mod=viewthread&tid=50247&page=19
 #
 store.ngotcm.com	FALSE	/mall/	FALSE	0	S[MEMBER]	11641-ebbe0b9de40e80ff8690de0e42a4f5c5-a651aa8934a2dcd065ab20b044ce14d1-1396148596
 store.ngotcm.com	FALSE	/mall/	FALSE	0	S[UNAME]	inaction
@@ -8,14 +8,24 @@ store.ngotcm.com	FALSE	/mall/	FALSE	0	S[MLV]	5
 store.ngotcm.com	FALSE	/mall/	FALSE	0	S[CUR]	CNY
 www.ngotcm.com	FALSE	/	FALSE	1645616430	bdshare_firstime	1393155630905
 www.ngotcm.com	FALSE	/	FALSE	1398405812.673313	vSAE_2132_lastvisit	1395810818
-www.ngotcm.com	FALSE	/	FALSE	0	vSAE_2132_home_diymode	1
 www.ngotcm.com	FALSE	/	FALSE	1398504612.113483	vSAE_2132_saltkey	cHsE0zEw
 baike.ngotcm.com	FALSE	/	FALSE	1427448612.343098	hd_sid	QGqmXD
 baike.ngotcm.com	FALSE	/	FALSE	1427448612.343269	hd_hid	0
-www.ngotcm.com	FALSE	/	FALSE	1398504683.058562	vSAE_2132_visitedfid	80D180
-www.ngotcm.com	FALSE	/	FALSE	1396148154.171353	vSAE_2132_sendmail	1
 www.ngotcm.com	FALSE	/	FALSE	1427683959.468841	vSAE_2132_auth	bc15vBUFt0ZB%2FNcrpY1n2F57Vzt5eV%2FND0h4QyBNVKRLpo2I6Bk2xsDHIe8uIwr6QIq3kHi7IBjKueBShDE7oLVcpFg
 baike.ngotcm.com	FALSE	/	FALSE	1427683959.143168	hd_auth	26f0WpvvnbexRG6x8TiSyxOCjC7EzSL%2BwEBKErfn9rkDOYv8
-www.ngotcm.com	FALSE	/	FALSE	1396234361.650347	vSAE_2132_sid	TYZRhb
-www.ngotcm.com	FALSE	/	FALSE	1396234362.050184	vSAE_2132_lastact	1396148599%09home.php%09spacecp
-www.ngotcm.com	FALSE	/	FALSE	1411872762	CNZZDATA285097	cnzz_eid%3D2084807441-1393155630-%26ntime%3D1396147854%26cnzz_a%3D1%26sin%3Dnone%26ltime%3D1396147854735%26rtime%3D4
+www.ngotcm.com	FALSE	/	FALSE	1427688839.128421	vSAE_2132_onlineindex	1
+www.ngotcm.com	FALSE	/	FALSE	0	vSAE_2132_viewuids	66948_68254
+www.ngotcm.com	FALSE	/	FALSE	1396448291	vSAE_2132_adclose_58	1
+.www.ngotcm.com	TRUE	/	FALSE	1427899086	Hm_lvt_23234f06c4cd9a705eb19ee58a9d4470	1396252553
+.www.ngotcm.com	TRUE	/	FALSE	0	Hm_lpvt_23234f06c4cd9a705eb19ee58a9d4470	1396363086
+www.ngotcm.com	FALSE	/	FALSE	0	vSAE_2132_home_diymode	1
+www.ngotcm.com	FALSE	/	FALSE	1427899356.224159	vSAE_2132_home_readfeed	1396364024
+www.ngotcm.com	FALSE	/	FALSE	1396443318.933163	vSAE_2132_oldtopics	D50247D
+www.ngotcm.com	FALSE	/	FALSE	1396443318.933209	vSAE_2132_fid80	1396374875
+www.ngotcm.com	FALSE	/	FALSE	1399031718.933253	vSAE_2132_visitedfid	80D204D29D180D127
+www.ngotcm.com	FALSE	/	FALSE	1396528834.796825	vSAE_2132_sid	9dtFXn
+www.ngotcm.com	FALSE	/	FALSE	1427978435	vSAE_2132_smile	1D1
+www.ngotcm.com	FALSE	/	FALSE	1396442465.749471	vSAE_2132_checkpm	1
+www.ngotcm.com	FALSE	/	FALSE	1396528835.805408	vSAE_2132_lastact	1396443116%09home.php%09misc
+www.ngotcm.com	FALSE	/	FALSE	1396442735.808572	vSAE_2132_sendmail	1
+www.ngotcm.com	FALSE	/	FALSE	1412167236	CNZZDATA285097	cnzz_eid%3D2084807441-1393155630-%26ntime%3D1396439720%26cnzz_a%3D3%26sin%3Dnone%26ltime%3D1396439720931%26rtime%3D8
