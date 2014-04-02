@@ -33,4 +33,5 @@ if (requestOptions.cookie) {
   //TODO updateFlag has a bug: if not seted ,first crawl will not bean started.
   crawler.init({jar: false, update: true, updateFlag: 1330});
   crawler.crawl(requestOptions.path);
+//  crawler.push({uri:'http://www.ngotcm.com/forum/thread-50247-1552-1.html',type:'link'});
 }
