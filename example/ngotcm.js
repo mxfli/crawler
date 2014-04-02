@@ -11,7 +11,7 @@ var path = require('path');
 
 //Override configuration.
 config.crawlOptions.working_root_path = path.join(__dirname, '../run/qicai');
-config.crawlOptions.maxConnections = 1;
+config.crawlOptions.maxConnections = 2;
 config.crawlOptions.resourceParser = require('../lib/plugins/qicai');
 
 var domCrawler = require('../lib').domCrawler;
@@ -21,6 +21,6 @@ var cookieAgent = require('cookies.txt');
 config.crawlOptions.recursive = false;
 
 cookieAgent.parse(__dirname + '/ngotcm_cookies.txt', function (jar) {
-  domCrawler.init({jar: jar, updateFlag: 4});
+  domCrawler.init({jar: jar, updateFlag: 5});
   domCrawler.crawl('http://www.ngotcm.com/forum/thread-50247-1-1.html');
 });
