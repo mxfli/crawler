@@ -34,11 +34,22 @@ crawler
 Basic usage:
 
 ```
-var crawlIt = require('crawlit');
+//Add basic config
+require('./config/config.js');
+//Override config in your own config `./config/config.local.js`
+
+//Override config too
+config.crawlOption.working_root_path: 'run/crawler';
+config.crawlOption.resourceParser: require('./lib/plugins/discuz');
+
+
+var crawlIt = require('crawlit').domCrawler;
 crawlIt.init({update:false});
 //start crawl
-crawlIt.crawl('http://domain/path');
+crawlIt.crawl(config.crawlOption.page);
 //Add other crawl interface
-crawlIt.push('/path2');
-crawlIt.push('/path2');
 ```
+###More Example 
+see [QiCai Crawl Example](./example/ngotcm.js)
+
+##MIT
