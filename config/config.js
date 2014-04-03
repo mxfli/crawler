@@ -24,20 +24,17 @@ config.crawlOptions = {
   updateFlag: true,
   working_root_path: 'run/crawler',
   inputEncoding: 'utf8',
-  resourceParser:require('../lib/plugins/default')
+  resourceParser: require('../lib/plugins/discuz'),
+  page: 'http://www.discuz.net/forum-86-1.html'
 };
 
 //Default client http request options
 config.requestOptions = {
   domain: 'en.wikipedia.org',
   port: 80,
-  path: 'http://en.wikipedia.org/wiki/Crawler',
-  deep: 1,//path deep to path;
-  chain: 2, // max chain from the path;
   "Connection": 'keep-Alive',
-  "Accept-Encoding": 'gzip,deflate,sdch',
   //cookie use cookie.txt
-  cookie: false,
+  Cookie: 'bdshare_firstime=1393155630905; Hm_lvt_23234f06c4cd9a705eb19ee58a9d4470=1396252553;',
   //Default user angent is google chrome 16
   "User-Agent": 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/535.7 (KHTML, like Gecko) Chrome/16.0.912.63 Safari/535.7'
 };

@@ -13,14 +13,9 @@ var path = require('path');
 config.crawlOptions.working_root_path = path.join(__dirname, '../run/qicai');
 config.crawlOptions.maxConnections = 2;
 config.crawlOptions.resourceParser = require('../lib/plugins/qicai');
+config.crawlOptions.recursive = false;
 
 var domCrawler = require('../lib').domCrawler;
 
-var cookieAgent = require('cookies.txt');
-
-config.crawlOptions.recursive = false;
-
-cookieAgent.parse(__dirname + '/ngotcm_cookies.txt', function (jar) {
-  domCrawler.init({jar: jar, updateFlag: 5});
-  domCrawler.crawl('http://www.ngotcm.com/forum/thread-50247-1-1.html');
-});
+domCrawler.init({updateFlag: 5});
+domCrawler.crawl('http://www.ngotcm.com/forum/thread-50247-1-1.html');
