@@ -15,7 +15,9 @@
     "charset": "*",
     "jsdom": "*"
   },
-  "devDependencies": { },
+  "devDependencies": {
+    "connect":"~2.x"
+  },
   "scripts": {},
   "repository": {
     "type": "git",

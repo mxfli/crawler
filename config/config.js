@@ -43,9 +43,3 @@ config.requestOptions = {
 global.config = config;
 console.log('App config options init: global["config"]');
 //console.log('App config options:\n', config);
-
-try {
-  require('./config.local.js');
-} catch (e) {
-  console.warn('No local config found, using default config instead.');
-}

@@ -1,42 +1,48 @@
+"use strict";
 /*
  * The simple server for crawled site.
  *
  * Usage: node server.js
  */
 
-"use strict";
-
-require('./../config/config.js');
+require('../config/config.js');
+try {
+  require('../example/config.local.js');
+} catch (ignore) {
+  console.log('No ../example/config.local.js found.');
+}
 
 var connect = require('connect');
 var fs = require('fs');
 var path = require('path');
-var att = require('././discuz/attachment.js');
-var utils = require('./../lib/utilbox.js');
+var att = require('../lib/plugins/discuz/attachment.js');
+var utils = require('../lib/utilbox.js');
 var zlib = require("zlib");
 var qs = require('querystring');
+var url = require('url');
 
 // global variables
 //下载网站所在的目录
-var archivePath = config.requestOptions.host;
+
+var archivePath = path.join(__dirname, '../', config.crawlOptions.working_root_path, config.crawlOptions.Host);
+var ROOT_PATH = path.join(__dirname, '../', config.crawlOptions.working_root_path);
+console.log('Working path:', archivePath);
 
 var webServer = connect()
     .use(connect.logger(':method :url - :res[content-type]', { buffer: 5000 }))
     .use(function (req, res, next) {
       if (req.url === '/') {
-        req.url = '/forum.php'
+        req.url = url.parse(config.crawlOptions.page).path;
       }
       next();
     });
 
-//TODO Add normal static file.
-//TODO remove connect module depends.
-
 //attachments parse
 webServer.use(function (req, res, next) {
-  if (/^\/forum.php\?mod=attachment&aid/.test(req.url)) {
-    var url = 'http://' + config.requestOptions.host + req.url;
-    var filePath = att.getAttFilePath(__dirname, url);
+  if (/\/forum.php\?mod=attachment&aid/.test(req.url)) {
+    var url = 'http://' + config.crawlOptions.Host + req.url;
+    console.log('attachement url:', url);
+    var filePath = att.getAttFilePath(ROOT_PATH, url);
 
     //attachment/id-noupdate-nothumb files was removed.
     filePath = filePath.replace('noupdate-nothumb', 'nothumb');
@@ -109,6 +115,13 @@ webServer.use(function (req, res, next) {
     res.setHeader("Content-Type", 'text/html; charset="utf-8"');
     req.filePath = path.join(__dirname, archivePath, req.url);
   }
+
+  if (/\.html$/.test(req.url)) {
+    res.setHeader("Content-Type", 'text/html; charset="utf-8"');
+    req.filePath = path.join(archivePath, req.url);
+  }
+
+  console.log('req.filePath:', req.filePath);
   next();
 });
 
@@ -182,14 +195,16 @@ webServer.use(
       }
     });
 
+//Static files;
+webServer.use(connect.static(archivePath));
+
 //tail router.
 webServer.use(function (req, res) {
-      console.error('url 404:', req.url);
-      res.statusCode = 404;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('URI : "' + req.url + '" NOT crawled from ' + config.requestOptions.host);
-    }
-);
+  console.error('url 404:', req.url);
+  res.statusCode = 404;
+  res.setHeader('Content-Type', 'text/plain');
+  res.end('URI : "' + req.url + '" NOT crawled from ' + config.crawlOptions.Host);
+});
 
 //start server
 webServer.listen(config.port);

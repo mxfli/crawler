@@ -7,6 +7,12 @@
  */
 
 require('../config/config.js');
+try{
+  require('./config.local.js');
+}catch(e){
+  console.log('No local config, using default');
+}
+
 var path = require('path');
 
 //Override configuration.

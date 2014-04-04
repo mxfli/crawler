@@ -7,6 +7,11 @@
  *      An example to use SmartCrawler.
  */
 require("./config/config.js");
+try{
+  require('./config.local.js');
+}catch(e){
+  console.log('No local config, using default');
+}
 
 var crawler = require("./lib").domCrawler;
 
