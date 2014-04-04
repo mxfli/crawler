@@ -6,6 +6,7 @@
  *     www.ngotcm.com 奇才贴 crawler.
  */
 
+//Add config to global.config
 require('../config/config.js');
 try{
   require('./config.local.js');
@@ -16,12 +17,10 @@ try{
 var path = require('path');
 
 //Override configuration.
-config.crawlOptions.working_root_path = path.join(__dirname, '../run/qicai');
-config.crawlOptions.maxConnections = 2;
+//config.crawlOptions.working_root_path = path.join(__dirname, '../run/qicai');
 config.crawlOptions.resourceParser = require('../lib/plugins/qicai');
-config.crawlOptions.recursive = false;
 
 var domCrawler = require('../lib').domCrawler;
 
-domCrawler.init({updateFlag: 5});
-domCrawler.crawl('http://www.ngotcm.com/forum/thread-50247-1-1.html');
+domCrawler.init();
+domCrawler.crawl(config.crawlOptions.page);

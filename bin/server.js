@@ -42,7 +42,7 @@ webServer.use(function (req, res, next) {
   if (/\/forum.php\?mod=attachment&aid/.test(req.url)) {
     var url = 'http://' + config.crawlOptions.Host + req.url;
     console.log('attachement url:', url);
-    var filePath = att.getAttFilePath(ROOT_PATH, url);
+    var filePath = path.join(ROOT_PATH, config.crawlOptions.Host, att.getAttFilePath(url));
 
     //attachment/id-noupdate-nothumb files was removed.
     filePath = filePath.replace('noupdate-nothumb', 'nothumb');
