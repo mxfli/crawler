@@ -2,14 +2,14 @@ body, div {
     margin: 0;
     padding: 0;
     color: #333;
-    background: #e0e0e0;
     font-size: 18px;
     line-height: 1.65em;
 }
 
 body {
     box-sizing: border-box;
-    padding: 1em;
+    /*padding: 1em;*/
+    background: #e0e0e0;
 }
 
 a:visited {
@@ -31,7 +31,15 @@ ul li, dl dd {
     margin: 0;
 }
 
-li:nth-child(2n +1) {
+#postList li {
+    box-sizing: border-box;
+    margin: 1px 0 0 0;
+    padding:.3em;
+    border: 1px solid #777;
+    /*border-radius: 5px;*/
+}
+
+#postList li:nth-child(2n +1) {
     background: #FFF4DD;
 }
 
@@ -51,6 +59,10 @@ li:nth-child(2n +1) {
     border: 1px solid #E0E7ED;
     text-decoration: none;
     font-size: 1.1em;
+}
+
+.pg a.prev {
+    background: no-repeat url(./static/image/common/arw_l.gif) 50% 50%;
 }
 
 .uname {
@@ -76,9 +88,12 @@ p.mbn {
 }
 
 div.quote {
+    width: 98%;
     background-color: #bbb;
     border-radius: 5px;
     position: relative;
+    opacity: .6;
+    margin: 0 auto;
 }
 
 div.quote blockquote:before, div.quote blockquote:after {
@@ -87,11 +102,15 @@ div.quote blockquote:before, div.quote blockquote:after {
     left: -1px;
     top: 5px;
     font-size: 2em;
-    color:#777;
+    color: #777;
 }
 
 div.quote blockquote:after {
     content: "”";
     left: 80%;
     top: 90%;
+}
+
+.postImage p.mbn img ,.postMessage img{
+    max-width: 100%;
 }

@@ -20,8 +20,7 @@ config.crawlOptions = {
   maxRetryCount: 3, //最大重试次数
   requestTimeout: 30 * 1000,
   savePoint: 50, //save data every 50 rui finished.
-  recursive: true,
-  updateFlag: true,
+  recursive: false,
   working_root_path: 'run/crawler',
   inputEncoding: 'utf8',
   resourceParser: require('../lib/plugins/discuz'),
