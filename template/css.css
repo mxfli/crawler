@@ -1,0 +1,97 @@
+body, div {
+    margin: 0;
+    padding: 0;
+    color: #333;
+    background: #e0e0e0;
+    font-size: 18px;
+    line-height: 1.65em;
+}
+
+body {
+    box-sizing: border-box;
+    padding: 1em;
+}
+
+a:visited {
+    color: #777;
+}
+
+a:link {
+    color: #0066CC;
+}
+
+ul, dl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul li, dl dd {
+    padding: 0;
+    margin: 0;
+}
+
+li:nth-child(2n +1) {
+    background: #FFF4DD;
+}
+
+.pg {
+    float: none;
+    height: auto;
+    display: table-cell;
+}
+
+.pg a, .pg strong {
+    margin: 0 4px 0 0;
+    padding: 0 0.4em;
+    float: left;
+    display: inline-block;
+    height: 1.8em;
+    line-height: 1.8em;
+    border: 1px solid #E0E7ED;
+    text-decoration: none;
+    font-size: 1.1em;
+}
+
+.uname {
+    font-size: 1.6em;
+}
+
+#postList {
+    display: block;
+    float: none;
+    max-width: 800px;
+}
+
+.postTime {
+    height: 1em;
+    font-size: .8em;
+    line-height: 1em;
+    color: #666;
+}
+
+p.mbn {
+    margin: 0;
+    font-size: .6em;
+}
+
+div.quote {
+    background-color: #bbb;
+    border-radius: 5px;
+    position: relative;
+}
+
+div.quote blockquote:before, div.quote blockquote:after {
+    content: "“";
+    position: absolute;
+    left: -1px;
+    top: 5px;
+    font-size: 2em;
+    color:#777;
+}
+
+div.quote blockquote:after {
+    content: "”";
+    left: 80%;
+    top: 90%;
+}
