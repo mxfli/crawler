@@ -2,7 +2,7 @@ body, div {
     margin: 0;
     padding: 0;
     color: #333;
-    font-size: 18px;
+    font-size: 22px;
     line-height: 1.65em;
 }
 
@@ -34,7 +34,7 @@ ul li, dl dd {
 #postList li {
     box-sizing: border-box;
     margin: 1px 0 0 0;
-    padding:.3em;
+    padding: .3em;
     border: 1px solid #777;
     /*border-radius: 5px;*/
 }
@@ -50,15 +50,23 @@ ul li, dl dd {
 }
 
 .pg a, .pg strong {
-    margin: 0 4px 0 0;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 1px 2px;
     padding: 0 0.4em;
     float: left;
     display: inline-block;
+    font-size: 0.95em;
     height: 1.8em;
     line-height: 1.8em;
     border: 1px solid #E0E7ED;
     text-decoration: none;
-    font-size: 1.1em;
+    background-color: #EEEEEE;
+}
+
+.pg a:hover {
+    border: 1px solid #555;
 }
 
 .pg a.prev {
@@ -88,29 +96,49 @@ p.mbn {
 }
 
 div.quote {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 0 auto;
+    padding: .5em .5em .5em 2em;
     width: 98%;
+    position: relative;
     background-color: #bbb;
     border-radius: 5px;
-    position: relative;
     opacity: .6;
-    margin: 0 auto;
+    font-size: .9em;
+}
+
+div.quote blockquote {
+    position: relative;
+    display: inline;
+    font-size: .9em;
+    line-height: 1.5em;
+    margin: 0;
+    padding: 0 2em 5px 0;
 }
 
 div.quote blockquote:before, div.quote blockquote:after {
-    content: "“";
     position: absolute;
-    left: -1px;
-    top: 5px;
-    font-size: 2em;
+    width:20px;
+    height:20px;
+    font-size: 40px;
+    line-height: 20px;
     color: #777;
+}
+
+div.quote blockquote:before {
+    content: "“";
+    left: -1em;
+    top: 15px;
 }
 
 div.quote blockquote:after {
     content: "”";
-    left: 80%;
-    top: 90%;
+    right: 15px;
+    bottom: 0;
 }
 
-.postImage p.mbn img ,.postMessage img{
+.postImage p.mbn img, .postMessage img {
     max-width: 100%;
 }
