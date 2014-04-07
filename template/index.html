@@ -1,20 +1,19 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
-    <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.5"/>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<link rel="shortcut icon" href="/favicon.ico">
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="format-detection" content="telephone=no"/>
 
-    <title>奇才贴-阅读版</title>
-    <base href="/forum/">
-    <link href="css.css" type="text/css" rel="stylesheet" media="screen">
+<title>奇才贴・阅读版・{{pageNum}}页</title>
+<link href="css.css" type="text/css" rel="stylesheet" media="screen">
 </head>
 <body>
-{{pageNav}}
+<div id="header"><h1>民间中医奇才<span>阅读版・第{{pageNum}}页</span></h1></div>
 {{content}}
-{{pageNav}}
+<div id="footer">{{pageNav}}</div>
 </body>
 </html>
