@@ -121,6 +121,10 @@ webServer.use(function (req, res, next) {
     req.filePath = path.join(archivePath, req.url);
   }
 
+  if(/\.css$/.test(req.url)){
+    req.filePath = path.join(__dirname,'../template/css.css');
+  }
+
   console.log('req.filePath:', req.filePath);
   next();
 });
