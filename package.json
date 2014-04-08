@@ -1,6 +1,6 @@
 {
   "name": "crawlit",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": " A node.js crawler support custom crawl rules for special site with thirdpart plugin.",
   "main": "lib/index.js",
   "directories": {
@@ -10,7 +10,6 @@
   "dependencies": {
     "iconv-lite": "*",
     "request": "*",
-    "jquery": "*",
     "charset": "*",
     "cheerio": "*"
   },
