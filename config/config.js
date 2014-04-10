@@ -7,22 +7,17 @@
  */
 
 var config = {
-  appName: '0CrawlIt',
-  version: '0.1.0',
-  port: '1231', //the date of nocancer.com will be shutting down.
-  databaseName: 'nocancer',
-  appDomain: 'localhost', //网站绑定的域名？也可以不用绑定，这个是灵活的，取决于在什么地址部署
+  port: '1231', //the date of www.nocancer.com.cn  shutting down.
   maxMemoryUsage: 500
 };
 
 config.crawlOptions = {
-  maxConnections: 1,
-  maxRetryCount: 3, //最大重试次数
+  maxConnections: 1, //default max crawling task count.
+  maxRetryCount: 3, //The max fail/try count.
   requestTimeout: 30 * 1000,
-  savePoint: 50, //save data every 50 rui finished.
-  recursive: false,
+  recursive: false, //search link resources in the crawled page, add links to crawlQueue
   working_root_path: 'run/crawler',
-  inputEncoding: 'utf8',
+  inputEncoding: 'utf8', //force crawled page contant charset, if not setting in response.header;
   resourceParser: require('../lib/plugins/discuz'),
   page: 'http://www.discuz.net/forum-86-1.html',
   updateMode: false
