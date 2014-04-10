@@ -24,7 +24,8 @@ config.crawlOptions = {
   working_root_path: 'run/crawler',
   inputEncoding: 'utf8',
   resourceParser: require('../lib/plugins/discuz'),
-  page: 'http://www.discuz.net/forum-86-1.html'
+  page: 'http://www.discuz.net/forum-86-1.html',
+  updateMode: false
 };
 
 //Default client http request options

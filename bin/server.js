@@ -24,7 +24,7 @@ var url = require('url');
 // global variables
 //下载网站所在的目录
 
-var archivePath = path.join(__dirname, '../', config.crawlOptions.working_root_path, config.crawlOptions.Host);
+var archivePath = path.join(__dirname, '../', config.crawlOptions.working_root_path, config.crawlOptions.host);
 var ROOT_PATH = path.join(__dirname, '../', config.crawlOptions.working_root_path);
 console.log('Working path:', archivePath);
 
@@ -40,9 +40,9 @@ var webServer = connect()
 //attachments parse
 webServer.use(function (req, res, next) {
   if (/\/forum.php\?mod=attachment&aid/.test(req.url)) {
-    var url = 'http://' + config.crawlOptions.Host + req.url;
+    var url = 'http://' + config.crawlOptions.host + req.url;
     console.log('attachement url:', url);
-    var filePath = path.join(ROOT_PATH, config.crawlOptions.Host, att.getAttFilePath(url));
+    var filePath = path.join(ROOT_PATH, config.crawlOptions.host, att.getAttFilePath(url));
 
     //attachment/id-noupdate-nothumb files was removed.
     filePath = filePath.replace('noupdate-nothumb', 'nothumb');
@@ -207,7 +207,7 @@ webServer.use(function (req, res) {
   console.error('url 404:', req.url);
   res.statusCode = 404;
   res.setHeader('Content-Type', 'text/plain');
-  res.end('URI : "' + req.url + '" NOT crawled from ' + config.crawlOptions.Host);
+  res.end('URI : "' + req.url + '" NOT crawled from ' + config.crawlOptions.host);
 });
 
 //start server
