@@ -20,7 +20,7 @@ var path = require('path');
 //config.crawlOptions.working_root_path = path.join(__dirname, '../run/qicai');
 config.crawlOptions.resourceParser = require('../lib/plugins/qicai');
 
-var domCrawler = require('../lib').domCrawler;
+var domCrawler = require('../lib').crawler;
 
 domCrawler.init();
 domCrawler.crawl(config.crawlOptions.page);
