@@ -15,6 +15,7 @@ config.crawlOptions = {
   maxConnections: 1, //default max crawling task count.
   maxRetryCount: 3, //The max fail/try count.
   requestTimeout: 30 * 1000,
+  delayTime: 5 * 1000, //time between to crawl request.
   recursive: false, //search link resources in the crawled page, add links to crawlQueue
   working_root_path: 'run/crawler',
   inputEncoding: 'utf8', //force crawled page contant charset, if not setting in response.header;
