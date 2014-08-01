@@ -10,11 +10,11 @@
   "dependencies": {
     "iconv-lite": "*",
     "charset": "*",
-    "needle": "~0.6.*",
+    "needle": "~0.7.*",
     "cheerio": "*"
   },
   "devDependencies": {
-    "connect":"~2.x"
+    "connect": "~2.x"
   },
   "scripts": {},
   "repository": {
