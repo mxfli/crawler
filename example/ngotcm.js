@@ -18,7 +18,7 @@ var path = require('path');
 
 //Override configuration.
 //config.crawlOptions.working_root_path = path.join(__dirname, '../run/qicai');
-config.crawlOptions.resourceParser = require('../lib/plugins/qicai');
+config.crawlOptions.resourceParser = require('./qicaiRules.js');
 
 var domCrawler = require('../lib').crawler;
 
