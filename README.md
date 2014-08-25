@@ -50,6 +50,6 @@ crawlIt.crawl(config.crawlOption.page);
 //Add other crawl interface
 ```
 ###More Example 
-see [QiCai Crawl Example](./example/ngotcm.js)
+see [QiCai Crawl Example](./example/qicai.js)
 
 ##MIT
