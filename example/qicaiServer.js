@@ -5,9 +5,9 @@
  * Usage: node server.js
  */
 
-require('../config/config.js');
+require('./config/config.js');
 try {
-  require('../example/config.local.js');
+  require('./config.local.js');
 } catch (ignore) {
   console.log('No ../example/config.local.js found.');
 }

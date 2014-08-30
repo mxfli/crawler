@@ -7,7 +7,7 @@
  */
 
 //Add config to global.config
-require('../config/config.js');
+require('./config/config.js');
 try{
   require('./config.local.js');
 }catch(e){

@@ -19,14 +19,13 @@ config.crawlOptions = {
   recursive: false, //search link resources in the crawled page, add links to crawlQueue
   working_root_path: 'run/crawler',
   inputEncoding: 'utf8', //force crawled page contant charset, if not setting in response.header;
-  resourceParser: require('../lib/plugins/discuz'),
-  page: 'http://www.discuz.net/forum-86-1.html',
+  resourceParser: require('../qicaiRules'),
+  page: 'http://www.ngotcm.com/forum/thread-50247-1-1.html',
   updateMode: false
 };
 
 //Default client http request options
 config.requestOptions = {
-  domain: 'en.wikipedia.org',
   port: 80,
   "Connection": 'keep-Alive',
   //cookie use cookie.txt
