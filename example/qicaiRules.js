@@ -11,7 +11,7 @@ var assert = require('assert');
 var template;
 var lastPageCB;
 
-var handler = require('../parseHelper.js');
+var handler = require('../lib/plugins/parseHelper.js');
 
 exports.parseLinks = function ($, push) {
   //attachement images
