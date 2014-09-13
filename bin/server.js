@@ -7,9 +7,9 @@
 
 require('../config/config.js');
 try {
-  require('../example/config.local.js');
+  require('./config.local.js');
 } catch (ignore) {
-  console.log('No ../example/config.local.js found.');
+  console.log('Error IN ../example/config.local.js:', ignore);
 }
 
 var connect = require('connect');
@@ -66,7 +66,7 @@ webServer.use(function (req, res, next) {
 
 webServer.use(function (req, res, next) {
   if (req.url === '/archiver/') {
-    req.filePath = path.join(__dirname, archivePath, 'archiver/index.html');
+    req.filePath = path.join(archivePath, 'archiver/index.html');
   }
   next();
 });
@@ -78,7 +78,7 @@ webServer.use(function (req, res, next) {
     res.setHeader('Content-Type', 'text/html');
     var qsObj = qs.parse(req.url);
     var url = 'forum-' + qsObj['fid'] + '-' + qsObj['page'] + '.html';
-    req.filePath = path.join(__dirname, archivePath, url);
+    req.filePath = path.join(archivePath, url);
   }
   next();
 });
@@ -90,7 +90,7 @@ webServer.use(function (req, res, next) {
     res.setHeader('Content-Type', 'text/html');
     var qsObj = qs.parse(req.url);
     var url = 'thread-' + qsObj['tid'] + '-' + qsObj['page'] + '-1.html';
-    req.filePath = path.join(__dirname, archivePath, url);
+    req.filePath = path.join(archivePath, url);
   }
   next();
 });
@@ -99,8 +99,8 @@ webServer.use(function (req, res, next) {
 webServer.use(function (req, res, next) {//ucenter avatar images
   if (/^\/ucenter/.test(req.url)) {
     res.setHeader("Content-Type", "image/jpg");
-    //console.log('Read file:', filePath);
-    req.filePath = path.join(__dirname, archivePath, req.url);
+    req.filePath = path.join(archivePath, req.url);
+    console.log('Read file:', req.filePath);
   }
   next();
 });
@@ -113,7 +113,7 @@ webServer.use(function (req, res, next) {
       /group\.php?gid=/.test(req.url) ||
       /^\/archiver\/\?/.test(req.url)) {
     res.setHeader("Content-Type", 'text/html; charset="utf-8"');
-    req.filePath = path.join(__dirname, archivePath, req.url);
+    req.filePath = path.join(archivePath, req.url);
   }
 
   if (/\.html$/.test(req.url)) {
