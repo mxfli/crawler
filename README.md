@@ -4,7 +4,7 @@ crawler
  A node.js crawler support custom plugin to implement special crawl rules.
  Implement plugin example for crawl discus2x.
 
-###Finished Features
+### Finished Features
 * Crawl site;
 * Filter: include/exclude URL path of the site.
 * Plugin: discuz2.0 attachments,discuz2.0 filter.
@@ -14,7 +14,7 @@ crawler
 * Use jsdom and jQuery to get needed resources of crawled page.
 * gbk to utf-8 convert.
 
-##Feature List：reference：http://obmem.info/?p=753
+## Feature List：reference：http://obmem.info/?p=753
 *   Support request.pipe, crawl site all in stream.pip mode.
 *	Basic crawl site；
 *   Proxy support；
@@ -28,9 +28,9 @@ crawler
 *   gzip/deflate: 5 times speedup；’accept-encoding’
 *   Multi-workers/Async
 
-##Install
+## Install
 ``` npm install crawlit ```
-##Usage
+## Usage
 Basic usage:
 
 ```
@@ -49,7 +49,7 @@ crawlIt.init({update:false});
 crawlIt.crawl(config.crawlOption.page);
 //Add other crawl interface
 ```
-###More Example 
+### More Example 
 see [QiCai Crawl Example](./example/qicai.js)
 
-##MIT
+## MIT
